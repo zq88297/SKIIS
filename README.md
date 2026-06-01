@@ -51,6 +51,8 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | `/project:context-check` | 上下文健康度诊断 |
 | `/project:context-sync` | 同步项目架构文档 |
 | `/project:task-send <路径>` | 向目标项目/模块派发排查任务 |
+| `/task:plan` | 分析任务依赖，生成并行/串行执行计划 |
+| `/task:run` | 启动并行会话执行异步任务 |
 
 ---
 

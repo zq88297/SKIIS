@@ -79,13 +79,22 @@ else {
 # ============================================
 Write-Host "[2/5] 安装技能文件..." -ForegroundColor Yellow
 
+# session-context
 $skillsDir = "$targetDir\skills\session-context"
 New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
-
 $sourceSkills = "$scriptDir\.claude\skills\session-context\"
 if (Test-Path $sourceSkills) {
     Copy-Item -Path "$sourceSkills*" -Destination $skillsDir -Recurse -Force
     Write-Host "  ✅ session-context 技能已安装" -ForegroundColor Green
+}
+
+# task-orchestrator
+$orchDir = "$targetDir\skills\task-orchestrator"
+New-Item -ItemType Directory -Force -Path $orchDir | Out-Null
+$sourceOrch = "$scriptDir\.claude\skills\task-orchestrator\"
+if (Test-Path $sourceOrch) {
+    Copy-Item -Path "$sourceOrch*" -Destination $orchDir -Recurse -Force
+    Write-Host "  ✅ task-orchestrator 技能已安装" -ForegroundColor Green
 }
 
 # ============================================

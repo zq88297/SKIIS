@@ -106,12 +106,20 @@ fi
 # ============================================
 section "2/5" "安装技能文件..."
 
+# session-context
 SKILLS_DIR="$TARGET_DIR/skills/session-context"
 mkdir -p "$SKILLS_DIR/commands"
-
 if [ -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
     cp -rf "$SCRIPT_DIR/.claude/skills/session-context/"* "$SKILLS_DIR/" 2>/dev/null || true
     ok "session-context 技能已安装"
+fi
+
+# task-orchestrator
+ORCH_DIR="$TARGET_DIR/skills/task-orchestrator"
+mkdir -p "$ORCH_DIR/commands"
+if [ -d "$SCRIPT_DIR/.claude/skills/task-orchestrator" ]; then
+    cp -rf "$SCRIPT_DIR/.claude/skills/task-orchestrator/"* "$ORCH_DIR/" 2>/dev/null || true
+    ok "task-orchestrator 技能已安装"
 fi
 
 # ============================================
