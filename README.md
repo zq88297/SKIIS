@@ -8,53 +8,34 @@ SKIIS 是一套 Claude Code 自定义技能，解决 AI 辅助编程中最头疼
 
 ## 安装
 
-### 全局安装（推荐，一次安装所有项目可用）
-
-**Windows：**
-```powershell
-irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex -Args '-Global'
-```
-
-**macOS / Linux（二选一）：**
-```bash
-# 方式一：直接下载运行（带超时和进度条）
-curl -#Lo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh --connect-timeout 10 --max-time 30 --retry 2 && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
-
-# 方式二：git clone 运行（国内网络更稳定，推荐）
-git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global && cd .. && rm -rf SKIIS
-```
-
-安装后任何项目都能直接使用 `/project:xxx` 命令。
-
-### 项目安装（安装完整三件套：命令 + hooks + CLAUDE.md）
-
-进入项目目录运行：
-
-**Windows：**
-```powershell
-cd 你的项目
-irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex
-```
-
-**macOS / Linux：**
-```bash
-cd 你的项目
-curl -#Lo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh --connect-timeout 10 --max-time 30 --retry 2 && bash /tmp/skiis-install.sh && rm /tmp/skiis-install.sh
-```
-
-### 克隆后运行
+### 全局安装（所有项目都能用 skill，命令在项目中也能用）
 
 ```bash
 git clone https://github.com/zq88297/SKIIS.git
 cd SKIIS
 
-# 全局安装
-./install.sh --global          # macOS/Linux
-.\install.ps1 -Global           # Windows
+# macOS / Linux
+bash install.sh --global
 
-# 项目安装
-./install.sh ~/my-project      # macOS/Linux
-.\install.ps1 C:\my-project    # Windows
+# Windows PowerShell
+.\install.ps1 -Global
+```
+
+全局安装会将 skill 放到 `~/.claude/skills/`，这样在任何项目中提到"保存上下文"等关键词都会自动触发 skill。
+
+### 项目安装（完整体验：命令 + hooks + CLAUDE.md + 上下文目录）
+
+```bash
+git clone https://github.com/zq88297/SKIIS.git
+cd SKIIS
+
+# 安装到指定项目
+bash install.sh ~/my-project          # macOS / Linux
+.\install.ps1 C:\my-project           # Windows
+
+# 或安装到当前目录
+bash install.sh .
+.\install.ps1 .
 ```
 
 ### 两种安装的区别

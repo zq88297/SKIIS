@@ -1,30 +1,25 @@
 #!/bin/bash
-# SKIIS 一键安装脚本 (macOS / Linux / Git Bash)
-# 用法:
-#   项目安装:  ./install.sh [目标项目路径]
-#   全局安装:  ./install.sh --global
+# SKIIS 安装脚本 (macOS / Linux / Git Bash)
+#
+# 用法（需先 git clone 仓库）:
+#   git clone https://github.com/zq88297/SKIIS.git && cd SKIIS
+#
+#   项目安装:  bash install.sh [目标路径]
+#   全局安装:  bash install.sh --global
 #
 # 示例:
-#   ./install.sh .                 # 安装到当前项目
-#   ./install.sh ~/my-project      # 安装到指定项目
-#   ./install.sh --global          # 全局安装（所有项目可用）
+#   bash install.sh .                 # 安装到当前项目
+#   bash install.sh ~/my-project      # 安装到指定项目
+#   bash install.sh --global          # 全局安装（skill 放到 ~/.claude/skills/）
 #
-# 远程安装:
-#   curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
-#
-# 注意：不要使用 curl | bash 管道方式，stdin 冲突会导致卡死。
+# 注意：不要使用 curl|bash 管道方式，脚本需要从仓库目录读取源文件。
 
 set -e
 
-# 防护：检测 stdin 是否被管道占用
+# 管道检测（安全网）
 if [ ! -t 0 ]; then
-    echo "⚠️  检测到 stdin 来自管道（如 curl | bash），这种方式可能导致脚本卡死。"
-    echo ""
-    echo "请改用："
-    echo "  curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh"
-    echo "  bash /tmp/skiis-install.sh --global"
-    echo "  rm /tmp/skiis-install.sh"
-    echo ""
+    echo "⚠️  不要使用 curl|bash 管道方式，请先 git clone 再运行。"
+    echo "  git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global"
     exit 1
 fi
 
@@ -59,6 +54,19 @@ done
 
 # 获取脚本所在目录
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# 检查源文件是否完整（防止单独下载脚本运行导致找不到源文件）
+if [ ! -d "$SCRIPT_DIR/.claude/commands/project" ] || [ ! -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
+    echo -e "${YELLOW}🔍 检测到脚本不在完整仓库中，正在自动克隆...${NC}"
+    TEMP_REPO="/tmp/skiis-repo-$$"
+    git clone --depth 1 https://github.com/zq88297/SKIIS.git "$TEMP_REPO" 2>/dev/null || {
+        echo -e "${RED}❌ 克隆失败，请手动运行:${NC}"
+        echo "  git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global"
+        exit 1
+    }
+    SCRIPT_DIR="$TEMP_REPO"
+    CLEANUP_TEMP=true
+fi
 
 if $IS_GLOBAL; then
     TARGET_DIR="$HOME/.claude"
@@ -314,6 +322,13 @@ EOF
     else
         echo -e "${GRAY}📂 docs/ai-context/ 已存在，保留用户数据${NC}"
     fi
+fi
+
+# ============================================
+# 清理临时仓库
+# ============================================
+if [ "$CLEANUP_TEMP" = "true" ] && [ -d "$TEMP_REPO" ]; then
+    rm -rf "$TEMP_REPO"
 fi
 
 # ============================================

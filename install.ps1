@@ -1,12 +1,14 @@
-# SKIIS 一键安装脚本 (Windows PowerShell)
-# 用法:
-#   项目安装:  .\install.ps1 [目标项目路径]
+# SKIIS 安装脚本 (Windows PowerShell)
+# 用法（需先 git clone 仓库）:
+#   git clone https://github.com/zq88297/SKIIS.git; cd SKIIS
+#
+#   项目安装:  .\install.ps1 [目标路径]
 #   全局安装:  .\install.ps1 -Global
 #
 # 示例:
 #   .\install.ps1 .                 # 安装到当前项目
 #   .\install.ps1 C:\my-project     # 安装到指定项目
-#   .\install.ps1 -Global           # 全局安装（所有项目可用）
+#   .\install.ps1 -Global           # 全局安装（skill 放到 ~/.claude/skills/）
 
 param(
     [string]$Target = ".",
@@ -15,6 +17,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# 检查源文件是否完整（防止单独下载脚本运行导致找不到源文件）
+if (-not (Test-Path "$scriptDir\.claude\commands\project") -or -not (Test-Path "$scriptDir\.claude\skills\session-context")) {
+    Write-Host "🔍 检测到脚本不在完整仓库中，正在自动克隆..." -ForegroundColor Yellow
+    $tempRepo = "$env:TEMP\skiiis-repo-$PID"
+    git clone --depth 1 https://github.com/zq88297/SKIIS.git $tempRepo 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $tempRepo)) {
+        Write-Host "❌ 克隆失败，请手动运行:" -ForegroundColor Red
+        Write-Host "  git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && .\install.ps1 -Global"
+        exit 1
+    }
+    $scriptDir = $tempRepo
+    $cleanupTemp = $true
+}
 
 if ($Global) {
     # 全局安装：安装到用户目录 ~/.claude/
@@ -279,6 +295,13 @@ else {
     else {
         Write-Host "📂 docs/ai-context/ 已存在，保留用户数据" -ForegroundColor Gray
     }
+}
+
+# ============================================
+# 清理临时仓库
+# ============================================
+if ($cleanupTemp -and (Test-Path $tempRepo)) {
+    Remove-Item -Recurse -Force $tempRepo -ErrorAction SilentlyContinue
 }
 
 # ============================================
