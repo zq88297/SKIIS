@@ -67,15 +67,22 @@ description: >-
 当检测到 `docs/ai-context/` 目录不存在时，**不要只询问，直接执行初始化**：
 
 1. 告知用户："检测到项目尚未初始化上下文系统，正在自动初始化..."
-2. 扫描项目结构：配置文件（package.json 等）、顶层目录、源码文件
-3. 创建 `docs/ai-context/` 目录
-4. 生成模板文件：
-   - `current-task.md` — 空任务模板
-   - `decisions.md` — 空决策记录
-   - `pitfalls.md` — 空踩坑记录
-5. 如果 `CLAUDE.md` 不存在，创建一个精简版（包含项目名称和基本约定）
+2. 扫描项目结构：配置文件、顶层目录、源码文件
+3. 创建 `docs/ai-context/` 并生成模板文件（current-task.md、decisions.md、pitfalls.md）
+4. 如果 `CLAUDE.md` 不存在，创建精简版
+5. **自动安装 hooks**：检查 `.claude/hooks.json` 是否存在，如果不存在则自动创建：
+   - 写入 [hooks.json](#hooks-配置) 配置
+   - 写入 `.claude/hooks/check-context.sh` 和 `on-file-change.sh` 脚本
 6. 如果项目有源码，自动运行 `/project:context-sync` 生成 `architecture.md`
 7. 报告初始化结果
+
+### 规则 6：hooks 自动补装
+
+当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时（比如老项目只装了全局命令），在 `/project:session-load` 时检测并询问：
+
+> 检测到项目缺少 hooks 自动检测。是否需要自动安装？（推荐）
+
+用户确认后，写入 hooks.json 和脚本文件。
 
 ---
 
@@ -99,3 +106,71 @@ description: >-
 - `/project:context-sync` → 同步项目架构文档
 
 当用户调用这些命令时，读取 `commands/` 目录下对应的 `.md` 文件获取详细执行流程。
+
+---
+
+## Hooks 配置
+
+当规则 5 或规则 6 触发需要安装 hooks 时，使用以下精确内容创建文件：
+
+### `.claude/hooks.json`
+
+```json
+{
+  "description": "SKIIS 上下文管理自动检查",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh"
+      }
+    ]
+  }
+}
+```
+
+### `.claude/hooks/check-context.sh`
+
+```bash
+#!/bin/bash
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
+MARKER_FILE="$PROJECT_DIR/.claude/hooks/.context_checked"
+
+if [ ! -d "$CONTEXT_DIR" ] && [ ! -f "$MARKER_FILE" ]; then
+    echo ""
+    echo "🔍 SKIIS: 项目尚未初始化上下文管理系统"
+    echo "   建议运行 /project:session-load 自动初始化"
+    echo ""
+    touch "$MARKER_FILE" 2>/dev/null || true
+fi
+```
+
+### `.claude/hooks/on-file-change.sh`
+
+```bash
+#!/bin/bash
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+WRITTEN_FILE="${CLAUDE_TOOL_INPUT_FILE:-}"
+
+case "$WRITTEN_FILE" in
+    *package.json|*pyproject.toml|*Cargo.toml|*go.mod)
+        echo ""
+        echo "📦 SKIIS: 检测到依赖配置文件变更"
+        echo "   建议运行 /project:context-sync --deps 更新依赖信息"
+        echo ""
+        ;;
+    *tsconfig.json|*vite.config.*|*next.config.*|*webpack.config.*)
+        echo ""
+        echo "🔧 SKIIS: 检测到构建配置变更"
+        echo "   建议运行 /project:context-sync 同步架构文档"
+        echo ""
+        ;;
+esac
+```
