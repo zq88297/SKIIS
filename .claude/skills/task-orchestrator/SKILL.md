@@ -147,60 +147,47 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 ---
 
-### 文件写入锁（防止并发写乱）
+### 文件写入策略（避免并发冲突）
 
-多个会话同时读写 `current-task.md`、`decisions.md`、`pitfalls.md` 等共享文件时，必须串行写入。
-
-**锁目录：** `docs/ai-context/.locks/`
-
-**写入任何共享文件前（所有会话必须遵守）：**
+**核心原则：每个任务写自己的结果文件，不做锁竞争。最后一次性合并。**
 
 ```
-要写入 {filename}
-  │
-  ├─ 1. 检查 docs/ai-context/.locks/{filename}.lock 是否存在
-  │
-  ├─ 2. 不存在 → 创建 lock 文件：
-  │      {会话标识}
-  │      {时间戳}
-  │      {操作：读/写}
-  │      → 写入文件 → 删除 lock
-  │
-  ├─ 3. 存在 且 < 30 秒 → 等待 2 秒后重试（最多 5 次）
-  │      → 5 次后仍锁着 → 检查是否是僵尸锁
-  │
-  └─ 4. 存在 且 > 30 秒 → 僵尸锁，强制接管
-         → 删除旧锁 → 创建新锁 → 写入 → 删除锁
+并行执行中：
+  Task-A 完成 → 写入 tasks/results/task-A.result.md  （无锁，独自文件）
+  Task-B 完成 → 写入 tasks/results/task-B.result.md  （无锁，独自文件）
+  Task-C 完成 → 写入 tasks/results/task-C.result.md  （无锁，独自文件）
+
+全部完成后（或用户触发 /task:plan 时）：
+  → 读取所有 tasks/results/*.result.md
+  → 合并写入 current-task.md（一次写入，无竞争）
+  → 追加到 decisions.md / pitfalls.md
 ```
 
-**哪些文件需要加锁：**
+**写结果文件（各任务独立，无需锁）：**
 
-| 文件 | 锁名 | 冲突风险 |
-|------|------|---------|
-| `current-task.md` | `current-task.md.lock` | 🔴 高 — 多会话同时更新任务状态 |
-| `decisions.md` | `decisions.md.lock` | 🟡 中 — 追加操作通常安全 |
-| `pitfalls.md` | `pitfalls.md.lock` | 🟡 中 |
-| `architecture.md` | `architecture.md.lock` | 🟢 低 — 通常单会话写入 |
-| `tasks/` 下的任务文件 | `{task-file}.lock` | 🟡 中 — 跨会话更新排查结果 |
+每个会话完成任务后，将结果写入 `docs/ai-context/tasks/results/{task-id}.result.md`：
 
-**实现方式：**
-
-写入前用 Bash 原子操作创建锁文件（`mkdir` 在文件系统中是原子的）：
-
-```bash
-# 尝试获取锁（原子操作）
-if mkdir "docs/ai-context/.locks/{filename}.lock" 2>/dev/null; then
-    # 获取锁成功，执行写入
-    # ... 写入操作 ...
-    # 释放锁
-    rmdir "docs/ai-context/.locks/{filename}.lock"
-else
-    # 锁被占用，等待重试或报错
-    echo "⚠️ 文件 {filename} 正被其他会话写入，等待中..."
-fi
+```markdown
+# 任务结果：{任务标题}
+- 完成时间：{datetime}
+- 执行会话：{会话标识}
+- 修改的文件：{列表}
+- 决策记录：{如有技术决策}
+- 踩坑记录：{如有踩坑}
 ```
 
-使用 `mkdir` 而非 `touch` 是因为 `mkdir` 在大多数文件系统上是原子操作，天然适合做锁。
+**合并阶段（当前主会话执行，一次性）：**
+
+当 `/task:plan` 或 `/project:session-load` 检测到 `tasks/results/` 下有未合并的结果文件时：
+
+1. 读取所有 `.result.md` 文件
+2. 更新 `current-task.md`：已完成移至 Completed，新增 Pending
+3. 追加到 `decisions.md`（如有新决策）
+4. 追加到 `pitfalls.md`（如有新踩坑）
+5. 将结果文件移到 `tasks/results/merged/`
+6. 报告合并结果
+
+**只读不写无冲突：** 所有会话可以同时读取 `current-task.md`、`architecture.md` 等文件，读操作不需要任何锁。
 
 ---
 
