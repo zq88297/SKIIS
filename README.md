@@ -8,7 +8,7 @@ SKIIS 是一套 Claude Code 自定义技能，解决 AI 辅助编程中最头疼
 
 ## 安装
 
-### 全局安装（所有项目都能用 skill，命令在项目中也能用）
+### 全局安装（一次安装，所有项目自动生效）
 
 ```bash
 git clone https://github.com/zq88297/SKIIS.git
@@ -21,32 +21,33 @@ bash install.sh --global
 .\install.ps1 -Global
 ```
 
-全局安装会将 skill 放到 `~/.claude/skills/`，这样在任何项目中提到"保存上下文"等关键词都会自动触发 skill。
+**这就够了。** 全局安装后，任何项目中：
 
-### 项目安装（完整体验：命令 + hooks + CLAUDE.md + 上下文目录）
+- 输入 `/project:session-load` → 自动加载上下文
+- 新项目首次使用时 → 自动初始化上下文系统
+- 对话超过 15 轮 → 自动提醒保存
+- 做出技术决策 → 自动提醒记录
+- 修复 bug → 自动提醒归档
+
+所有这些规则都在全局 skill 中，不需要在每个项目里重复配置。
+
+### 项目安装（可选，额外获得 hooks 文件变更检测）
+
+如果你还需要**文件变化时自动检测**（hooks），在项目目录额外跑一次：
 
 ```bash
-git clone https://github.com/zq88297/SKIIS.git
 cd SKIIS
-
-# 安装到指定项目
-bash install.sh ~/my-project          # macOS / Linux
-.\install.ps1 C:\my-project           # Windows
-
-# 或安装到当前目录
-bash install.sh .
-.\install.ps1 .
+bash install.sh ~/my-project
 ```
 
 ### 两种安装的区别
 
 | 功能 | 全局安装 | 项目安装 |
 | ---- | -------- | -------- |
-| `/project:xxx` 命令 | ✅ 所有项目可用 | ✅ 当前项目可用 |
-| hooks 自动检查 | ❌ | ✅ |
-| CLAUDE.md 自动规则 | ❌ | ✅ |
-| docs/ai-context/ | ❌ | ✅ |
-| 适用场景 | 所有项目都能用命令 | 需要完整自动化体验 |
+| `/project:xxx` 命令 | ✅ 所有项目 | ✅ |
+| 5 条自动规则（加载/提醒/预警/归档/初始化） | ✅ 全局 skill 内置 | ✅ |
+| hooks 文件变更自动检测 | ❌ | ✅ |
+| 适用 | 绝大多数用户 | 需要 hooks 的主力项目 |
 
 ### 重复安装安全吗？
 

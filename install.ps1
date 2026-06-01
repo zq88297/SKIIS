@@ -169,79 +169,38 @@ else {
 }
 
 # ============================================
-# 5. CLAUDE.md（仅项目安装）
+# 5. CLAUDE.md（仅项目安装，精简版）
+#   自动规则已在全局 SKILL.md 中，CLAUDE.md 只需引用
 # ============================================
 Write-Host "[5/5] 配置 CLAUDE.md..." -ForegroundColor Yellow
 
 if ($isGlobal) {
-    Write-Host "  ⏭️  全局安装跳过 CLAUDE.md（属于项目文件）" -ForegroundColor Gray
+    Write-Host "  ⏭️  全局安装跳过（自动规则已在全局 skill 中生效）" -ForegroundColor Gray
 }
 else {
     $claudeFile = "$targetDir\CLAUDE.md"
-    $skuusSectionMarker = "## 自动上下文管理规则"
+    $skuusMarker = "session-context"
 
-    $skuusSection = @'
+    $skuusLine = @'
 
----
+## 上下文管理
 
-## 自动上下文管理规则
-
-以下规则在每次对话中自动生效，无需用户手动触发：
-
-### 规则 1：启动时自动加载上下文
-每次新对话开始时，如果用户没有提供明确任务，立即执行：
-1. 检查并读取 docs/ai-context/current-task.md
-2. 读取 docs/ai-context/decisions.md（最近 5 条）
-3. 读取 docs/ai-context/pitfalls.md（最近 5 条）
-4. 向用户呈现上下文摘要，询问"请告诉我需要做什么"
-
-### 规则 2：架构变化时自动提醒
-- 新增/删除顶层目录 → 提醒运行 /project:context-sync
-- 安装新核心依赖 → 提醒运行 /project:context-sync --deps
-- 切换技术方案 → 提醒记录到 decisions.md
-
-### 规则 3：对话疲劳自动预警
-- 超过 15 轮对话 → 提醒保存进度
-- AI 发现自身回复矛盾或不确定 → 警告并建议新会话
-
-### 规则 4：工作产出自动归档提示
-- 修复 bug → 提示记录到 pitfalls.md
-- 技术决策 → 提示追加到 decisions.md
-- 完成功能模块 → 提示更新 current-task.md
-
-### 规则 5：新项目自动初始化
-检测到 docs/ai-context/ 不存在且项目有源码时，自动扫描并初始化上下文管理系统。
-
-## 上下文管理规范
-
-1. 每次新对话自动加载上下文（见规则 1）
-2. 对话超过 15 轮主动提醒保存（见规则 3）
-3. 项目结构变化时提醒同步（见规则 2）
-4. 重要决策后提醒记录（见规则 4）
-
-## 可用命令
-
-| 命令 | 用途 |
-|------|------|
-| `/project:session-load` | 加载已保存的上下文 |
-| `/project:session-save` | 保存当前进度 |
-| `/project:session-end` | 结束会话（健康检查 + 保存） |
-| `/project:context-check` | 上下文健康度诊断 |
-| `/project:context-sync` | 同步项目架构文档 |
+本项目使用 SKIIS 上下文管理系统（已全局安装）。可用命令：
+`/project:session-load` `/project:session-save` `/project:session-end` `/project:context-check` `/project:context-sync`
 '@
 
     if (Test-Path $claudeFile) {
         $existingClaude = Get-Content $claudeFile -Raw -Encoding UTF8 | Out-String
-        if ($existingClaude -match [regex]::Escape($skuusSectionMarker)) {
-            Write-Host "  ⏭️  CLAUDE.md 已包含 SKIIS 规则，跳过" -ForegroundColor Gray
+        if ($existingClaude -match $skuusMarker) {
+            Write-Host "  ⏭️  CLAUDE.md 已包含 SKIIS 引用，跳过" -ForegroundColor Gray
         }
         else {
-            Add-Content $claudeFile -Value $skuusSection -Encoding UTF8
-            Write-Host "  ✅ CLAUDE.md 已追加 SKIIS 规则（保留原有内容）" -ForegroundColor Green
+            Add-Content $claudeFile -Value $skuusLine -Encoding UTF8
+            Write-Host "  ✅ CLAUDE.md 已追加 SKIIS 引用" -ForegroundColor Green
         }
     }
     else {
-        Set-Content $claudeFile -Value $skuusSection -Encoding UTF8
+        Set-Content $claudeFile -Value $skuusLine -Encoding UTF8
         Write-Host "  ✅ CLAUDE.md 已创建" -ForegroundColor Green
     }
 }
