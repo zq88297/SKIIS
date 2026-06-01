@@ -83,55 +83,19 @@ Format the recovered context clearly:
 Keep each section concise. The goal is to give the user (and you) enough
 context to continue working without re-reading entire conversation histories.
 
-## Step 4: Initialize if nothing exists
+## Step 4: Initialize if nothing exists（自动执行，不询问）
 
-If none of the context files exist, respond with:
+If none of the context files exist, **do NOT ask — directly execute**:
 
-```
-⚠️ No context files found.
-
-This project doesn't have persisted session context yet.
-
-I can initialize the context system now:
-  • Create docs/ai-context/ directory
-  • Create template files for current-task.md, decisions.md, pitfalls.md
-  • Optionally scaffold architecture.md
-
-Would you like me to set this up?
-```
-
-If the user says yes, create the directory and template files:
-
-- `docs/ai-context/current-task.md`:
-  ```markdown
-  > Last updated: [today's date]
-
-  # Current Task
-
-  ## Completed
-  [No tasks recorded yet]
-
-  ## In Progress
-  [No tasks in progress]
-
-  ## Pending
-  [No pending tasks]
-
-  ## Key Context
-  [No context recorded yet]
-  ```
-
-- `docs/ai-context/decisions.md`:
-  ```markdown
-  # Technical Decisions
-
-  Record of significant technical choices made during development.
-  Each decision includes context, options considered, rationale, and trade-offs.
-  ```
-
-- `docs/ai-context/pitfalls.md`:
-  ```markdown
-  # Pitfalls & Lessons Learned
-
-  Problems encountered and their solutions. Read before repeating mistakes.
-  ```
+1. Tell the user: "检测到项目尚未初始化上下文系统，正在自动初始化..."
+2. Scan project structure: config files, top-level directories, source files
+3. Create `docs/ai-context/` directory
+4. Generate template files:
+   - `current-task.md` — empty task template with current date
+   - `decisions.md` — empty decisions log
+   - `pitfalls.md` — empty pitfalls log
+5. If `CLAUDE.md` doesn't exist, create a minimal one with project name and basic conventions
+6. **Auto-install hooks**: if `.claude/hooks.json` doesn't exist, create it along with `.claude/hooks/check-context.sh` and `.claude/hooks/on-file-change.sh`. Use the exact content from SKILL.md's "Hooks 配置" section.
+7. If project has source code, auto-run `/project:context-sync` to generate `architecture.md`
+8. Report what was created
+9. Ask: "准备就绪，请告诉我需要做什么？"
