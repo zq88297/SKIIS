@@ -9,10 +9,24 @@
 #   ./install.sh ~/my-project      # 安装到指定项目
 #   ./install.sh --global          # 全局安装（所有项目可用）
 #
-# 远程安装（全局）:
-#   curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash -s -- --global
+# 远程安装:
+#   curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
+#
+# 注意：不要使用 curl | bash 管道方式，stdin 冲突会导致卡死。
 
 set -e
+
+# 防护：检测 stdin 是否被管道占用
+if [ ! -t 0 ]; then
+    echo "⚠️  检测到 stdin 来自管道（如 curl | bash），这种方式可能导致脚本卡死。"
+    echo ""
+    echo "请改用："
+    echo "  curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh"
+    echo "  bash /tmp/skiis-install.sh --global"
+    echo "  rm /tmp/skiis-install.sh"
+    echo ""
+    exit 1
+fi
 
 # 颜色
 RED='\033[0;31m'

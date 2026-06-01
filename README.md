@@ -17,7 +17,7 @@ irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex -Ar
 
 **macOS / Linux：**
 ```bash
-curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash -s -- --global
+curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
 ```
 
 安装后任何项目都能直接使用 `/project:xxx` 命令。
@@ -35,7 +35,7 @@ irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex
 **macOS / Linux：**
 ```bash
 cd 你的项目
-curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash
+curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh && rm /tmp/skiis-install.sh
 ```
 
 ### 克隆后运行
