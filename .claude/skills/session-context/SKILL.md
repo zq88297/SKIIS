@@ -1,4 +1,4 @@
----
+﻿---
 name: session-context
 description: >-
   Complete context lifecycle management for Claude Code projects — save, load,
@@ -230,6 +230,10 @@ description: >-
    同时在 A 的 `current-task.md` 记录："已部分排查 B，详情见 B/tasks/from-A-xxx.md"
 
 这样 B 打开会话时看到的是"有人查过了，还剩这些疑点"，而不是"一个没动过的任务"。**避免重复做工。**
+
+6. **查完发现不是 B 的问题** → 将 B 的 task 移到 tasks/done/，末尾写排查结论（确认 B 无问题、排除原因、下一步怀疑谁）。追加到 B 的 decisions.md 记录排除结论。A 的 current-task.md 更新：B 已排除，问题转向 X。后续排查不会再怀疑 B。
+
+这样 B 打开会话时有三种可能：已解决 / 部分进展 / 非本模块。**无论哪种都不会重复做工。**
 
 ### 规则 4.8：分层上下文（大型多模块项目）
 
