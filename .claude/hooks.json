@@ -1,0 +1,21 @@
+{
+  "description": "SKIIS 上下文管理自动检查 hooks。轻量级检查，复杂逻辑由 CLAUDE.md 规则处理。",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh\""
+      },
+      {
+        "matcher": "Edit",
+        "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh\""
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh\""
+      }
+    ]
+  }
+}
