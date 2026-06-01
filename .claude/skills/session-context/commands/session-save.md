@@ -45,6 +45,33 @@ Review the current conversation and extract:
 
 Use `- [x]` for completed items, `- [ ]` for pending items.
 
+### Continuation plan (for `current-task.md` — **MUST include**)
+
+This is the **most important section for mid-task saves**. Without it, the
+next session won't know where to start. Write `## 🔜 下次继续` section:
+
+```markdown
+## 🔜 下次继续
+
+### 第一步
+{打开哪个文件、定位到哪个函数/行号、做什么}
+例如：打开 src/ike/negotiate.c，在 ike_handle_sa() 函数中继续实现超时重试逻辑
+
+### 当前状态
+{代码写到哪了、测试跑了吗、编译通过了吗}
+例如：主流程已写完，编译通过，但 handle_timeout() 回调还未注册
+
+### 关键约束
+{继续时需要注意的限制}
+例如：超时时间必须从配置文件读取，不能硬编码；需兼容 ikev1 和 ikev2
+
+### 阻塞项
+{如果有外部依赖或等待确认的事项}
+例如：等待运维确认 keepalive 间隔参数
+```
+
+**要求：** 第一步必须具体到"打开 X 文件，定位到 Y 函数/行号，做 Z"。不是泛泛的"继续开发 XX 功能"。
+
 ### Technical decisions (for `decisions.md`)
 
 For each meaningful decision made in this conversation, capture:

@@ -55,6 +55,12 @@ Format the recovered context clearly:
 🚧 In Progress:
   • item 3 — [current state, blockers if any]
 
+🔜 **下次继续（最重要）**
+[From current-task.md's "下次继续" section — display FIRST]
+  • 第一步：打开 xxx 文件，定位到 yyy 函数，做 zzz
+  • 当前状态：{编译/运行状态}
+  • 阻塞项：{如有}
+
 📋 Pending:
   • item 4
   • item 5
