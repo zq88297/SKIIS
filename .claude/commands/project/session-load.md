@@ -15,16 +15,18 @@ Check for the existence of each of these files and note their status:
 | Technical decisions | `docs/ai-context/decisions.md` |
 | Pitfalls | `docs/ai-context/pitfalls.md` |
 | Architecture | `docs/ai-context/architecture.md` |
+| Cross-project tasks | `docs/ai-context/tasks/*.md` |
 
 ## Step 2: Load in priority order
 
 Read the files that exist, in this order (most critical first):
 
-1. **CLAUDE.md** — Project identity, conventions, build commands
-2. **current-task.md** — Where we left off (the most important file)
-3. **decisions.md** — What was decided and why
-4. **pitfalls.md** — What went wrong and how to avoid it
-5. **architecture.md** — System structure
+1. **tasks/*.md** — Cross-project tasks from other projects (check FIRST — these explain WHY we're here)
+2. **CLAUDE.md** — Project identity, conventions, build commands
+3. **current-task.md** — Where we left off
+4. **decisions.md** — What was decided and why
+5. **pitfalls.md** — What went wrong and how to avoid it
+6. **architecture.md** — System structure
 
 If the user specified a narrower scope in `$ARGUMENTS` (e.g. "just the task
 progress"), honor that and skip the rest.
