@@ -64,6 +64,16 @@ cd SKIIS && ./install.sh ../我的项目    # 或 .\install.ps1 ..\我的项目
 
 安装后打开 Claude Code，AI 会自动遵守 CLAUDE.md 中的规则，无需手动触发任何命令。
 
+## 验证安装
+
+一行命令检查所有文件：
+
+```powershell
+@(".claude/commands/project/session-load.md",".claude/commands/project/session-save.md",".claude/commands/project/session-end.md",".claude/commands/project/context-check.md",".claude/commands/project/context-sync.md",".claude/skills/session-context/SKILL.md",".claude/hooks.json","CLAUDE.md","docs/ai-context/current-task.md") | ForEach-Object { if (Test-Path $_) { "✅ $_" } else { "❌ $_ 缺失" } }
+```
+
+最关键的一步：**重启 Claude Code**，输入 `/project:session-load`，看到上下文摘要即安装成功。
+
 ## 上下文文件系统
 
 ```

@@ -20,27 +20,24 @@ Write-Host "目标项目: $targetDir"
 Write-Host ""
 
 # ============================================
-# 1. 复制命令文件 (.claude/commands/)
+# 1. 复制命令文件 (.claude/commands/project/)
+#    目录名 "project" 对应 /project:xxx 前缀
 # ============================================
 Write-Host "[1/5] 安装命令文件..." -ForegroundColor Yellow
 
-$commandsDir = "$targetDir\.claude\commands"
+$commandsDir = "$targetDir\.claude\commands\project"
 New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sourceCommands = "$scriptDir\.claude\commands\context-sync.md"
 
+# 从克隆的仓库复制所有命令文件
+$sourceCommands = "$scriptDir\.claude\commands\project\"
 if (Test-Path $sourceCommands) {
-    Copy-Item -Path $sourceCommands -Destination $commandsDir -Force
-    Write-Host "  ✅ context-sync.md 已安装" -ForegroundColor Green
+    Copy-Item -Path "$sourceCommands*" -Destination $commandsDir -Force
+    Write-Host "  ✅ 5 个命令已安装 (/project:session-load 等)" -ForegroundColor Green
 }
 else {
-    # 如果脚本旁边没有源文件，从当前目录的 .claude 获取
-    $sourceCommands = "$scriptDir\.claude\commands\*"
-    if (Test-Path "$scriptDir\.claude\commands") {
-        Copy-Item -Path $sourceCommands -Destination $commandsDir -Force
-        Write-Host "  ✅ 所有命令文件已安装" -ForegroundColor Green
-    }
+    Write-Host "  ⚠️  未找到命令源文件，请确认从完整仓库运行" -ForegroundColor Magenta
 }
 
 # ============================================

@@ -36,15 +36,18 @@ echo "目标项目: $TARGET"
 echo ""
 
 # ============================================
-# 1. 安装命令文件
+# 1. 安装命令文件 (.claude/commands/project/)
+#    目录名 "project" 对应 /project:xxx 前缀
 # ============================================
 section "1/5" "安装命令文件..."
 
-mkdir -p "$TARGET/.claude/commands"
+mkdir -p "$TARGET/.claude/commands/project"
 
-if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
-    cp -f "$SCRIPT_DIR/.claude/commands/"*.md "$TARGET/.claude/commands/" 2>/dev/null || true
-    ok "命令文件已安装"
+if [ -d "$SCRIPT_DIR/.claude/commands/project" ]; then
+    cp -f "$SCRIPT_DIR/.claude/commands/project/"*.md "$TARGET/.claude/commands/project/" 2>/dev/null || true
+    ok "5 个命令已安装 (/project:session-load 等)"
+else
+    warn "未找到命令源文件，请确认从完整仓库运行"
 fi
 
 # ============================================
