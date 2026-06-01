@@ -42,10 +42,36 @@ description: >-
 
 ### 并行执行方式
 
-对于标记为 🟢 可并行的任务，有两种执行方式：
+对于标记为 🟢 可并行的任务，有三种执行方式：
 
-1. **新终端窗口**：`claude -p "任务描述"` 在新终端中运行
-2. **后台任务文件**：将任务写入独立 prompt 文件，用户手动在新会话中执行
+**方式一：后台自动执行（推荐，无需用户操作）**
+
+使用 `Bash` 工具的 `run_in_background` 模式，直接启动新的 Claude Code 会话：
+
+```bash
+# 在当前项目目录执行异步任务
+claude -p "读取 docs/ai-context/tasks/async/task-xxx.md，执行其中描述的任务，完成后将结果写入 docs/ai-context/tasks/async-done/"
+
+# 在其他项目目录执行（跨项目任务）
+claude --project-dir /path/to/other-project -p "读取 docs/ai-context/tasks/from-xxx.md，执行排查任务"
+```
+
+**方式二：新终端窗口（用户可见）**
+
+```bash
+# Windows
+start "Task-xxx" cmd /k "cd /d %PROJECT_DIR% && claude"
+
+# macOS
+osascript -e 'tell app "Terminal" to do script "cd '$PROJECT_DIR' && claude"'
+
+# Linux (GNOME)
+gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
+```
+
+**方式三：任务文件（手动）**
+
+将任务写入 `docs/ai-context/tasks/async/`，用户手动在新会话中执行 `/task:run`。适用于需要人工判断的复杂任务。
 
 ### 任务认领锁（冲突解决）
 

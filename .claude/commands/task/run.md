@@ -56,17 +56,30 @@
 2. 在来源项目的 `docs/ai-context/current-task.md` 中更新状态
 ```
 
-## Step 3：启动并行会话
+## Step 4：自动启动并行会话
 
-对每个 async task，提供启动命令：
+对每个已认领的 async task，**直接后台启动**，不需要用户手动操作：
 
 ```bash
-# 方式一：新终端窗口
-claude -p "$(cat docs/ai-context/tasks/async/task-xxx.md)"
+# 同项目任务：后台执行
+cd {项目目录} && claude -p "读取 docs/ai-context/tasks/async/{task-file}.md，按文件中的任务描述执行。完成后：1) 将结果追加到文件末尾 2) 将文件移到 async-done/ 3) 将 claim 移到 claims/done/"
 
-# 方式二：新 Claude Code 窗口打开项目
-cd /path/to/project && claude
-# 然后输入：读取 docs/ai-context/tasks/async/task-xxx.md 并执行
+# 跨项目任务：指定项目目录
+claude --project-dir {目标项目路径} -p "读取 docs/ai-context/tasks/from-xxx.md，按文件中的排查清单执行..."
+```
+
+使用 Bash 的 `run_in_background` 模式，多个任务同时启动。
+
+**如果平台不支持后台执行**，提供新终端命令：
+```bash
+# Windows
+start "Task" cmd /k "cd /d {dir} && claude"
+
+# macOS  
+osascript -e 'tell app "Terminal" to do script "cd {dir} && claude"'
+
+# Linux
+gnome-terminal -- bash -c "cd {dir} && claude; exec bash"
 ```
 
 ## Step 4：跟踪状态
