@@ -41,7 +41,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 
 ---
 
-## 五条命令
+## 六个命令
 
 | 命令 | 用途 |
 | ---- | ---- |
@@ -50,6 +50,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | `/project:session-end` | 结束会话（健康检查 + 保存） |
 | `/project:context-check` | 上下文健康度诊断 |
 | `/project:context-sync` | 同步项目架构文档 |
+| `/project:task-send <路径>` | 向目标项目/模块派发排查任务 |
 
 ---
 
