@@ -73,6 +73,42 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 将任务写入 `docs/ai-context/tasks/async/`，用户手动在新会话中执行 `/task:run`。适用于需要人工判断的复杂任务。
 
+### 并发限制和自动接续
+
+**同时最多 3 个并行会话。** 超过的任务排队等待。
+
+```
+任务队列（按优先级排序）
+  Task-A ──→ 会话1 执行中 🔄
+  Task-B ──→ 会话2 执行中 🔄
+  Task-C ──→ 会话3 执行中 🔄  ← 已达上限
+  Task-D ──→ 排队等待 ⏳
+  Task-E ──→ 排队等待 ⏳（依赖 Task-A 结果）
+```
+
+**自动接续逻辑：**
+
+```
+某个会话完成当前任务
+  │
+  ├─ 1. 将 claim 移到 claims/done/，追加完成状态
+  ├─ 2. 同步文档：更新 current-task.md 的 Completed/Pending
+  ├─ 3. 检查队列中下一个任务：
+  │      ├─ 无依赖未满足 → 认领执行
+  │      └─ 依赖 Task-X 结果 → 检查 Task-X 是否完成
+  │            ├─ 已完成 → 读取结果，开始执行
+  │            └─ 未完成 → 提示用户："等待 Task-X 完成（预计在会话 N 中）"
+  └─ 4. 告知用户下一步状态
+```
+
+**等待通知格式：**
+```
+⏳ Task-E 需要等待 Task-A 的结果才能开始
+   Task-A 正在会话1 中执行（已运行 15 分钟）
+   预计 Task-A 完成后我会自动开始 Task-E
+   你也可以手动去会话1 查看进度
+```
+
 ### 任务认领锁（冲突解决）
 
 **问题：** 会话 A 执行 Task-X 完成后又接了 Task-Y，但 Task-Y 已在会话 B 中执行。两个会话同时改同一文件 → 冲突。
@@ -108,6 +144,63 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 **`/task:run` 的额外职责：** 启动任务前先认领，认领失败则跳过。
 
 **所有会话的通用规则：** 开始任何新任务前，先检查 `docs/ai-context/tasks/claims/` 是否有冲突。这是 session-context 规则的一部分（通过 `session-load` 自动检查）。
+
+---
+
+### 文件写入锁（防止并发写乱）
+
+多个会话同时读写 `current-task.md`、`decisions.md`、`pitfalls.md` 等共享文件时，必须串行写入。
+
+**锁目录：** `docs/ai-context/.locks/`
+
+**写入任何共享文件前（所有会话必须遵守）：**
+
+```
+要写入 {filename}
+  │
+  ├─ 1. 检查 docs/ai-context/.locks/{filename}.lock 是否存在
+  │
+  ├─ 2. 不存在 → 创建 lock 文件：
+  │      {会话标识}
+  │      {时间戳}
+  │      {操作：读/写}
+  │      → 写入文件 → 删除 lock
+  │
+  ├─ 3. 存在 且 < 30 秒 → 等待 2 秒后重试（最多 5 次）
+  │      → 5 次后仍锁着 → 检查是否是僵尸锁
+  │
+  └─ 4. 存在 且 > 30 秒 → 僵尸锁，强制接管
+         → 删除旧锁 → 创建新锁 → 写入 → 删除锁
+```
+
+**哪些文件需要加锁：**
+
+| 文件 | 锁名 | 冲突风险 |
+|------|------|---------|
+| `current-task.md` | `current-task.md.lock` | 🔴 高 — 多会话同时更新任务状态 |
+| `decisions.md` | `decisions.md.lock` | 🟡 中 — 追加操作通常安全 |
+| `pitfalls.md` | `pitfalls.md.lock` | 🟡 中 |
+| `architecture.md` | `architecture.md.lock` | 🟢 低 — 通常单会话写入 |
+| `tasks/` 下的任务文件 | `{task-file}.lock` | 🟡 中 — 跨会话更新排查结果 |
+
+**实现方式：**
+
+写入前用 Bash 原子操作创建锁文件（`mkdir` 在文件系统中是原子的）：
+
+```bash
+# 尝试获取锁（原子操作）
+if mkdir "docs/ai-context/.locks/{filename}.lock" 2>/dev/null; then
+    # 获取锁成功，执行写入
+    # ... 写入操作 ...
+    # 释放锁
+    rmdir "docs/ai-context/.locks/{filename}.lock"
+else
+    # 锁被占用，等待重试或报错
+    echo "⚠️ 文件 {filename} 正被其他会话写入，等待中..."
+fi
+```
+
+使用 `mkdir` 而非 `touch` 是因为 `mkdir` 在大多数文件系统上是原子操作，天然适合做锁。
 
 ---
 

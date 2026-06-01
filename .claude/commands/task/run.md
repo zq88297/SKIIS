@@ -56,21 +56,56 @@
 2. 在来源项目的 `docs/ai-context/current-task.md` 中更新状态
 ```
 
-## Step 4：自动启动并行会话
+## Step 4：按并发限制启动会话
 
-对每个已认领的 async task，**直接后台启动**，不需要用户手动操作：
+**最多同时 3 个并行会话。** 按执行计划的分组顺序启动：
 
+1. 计数当前活跃的 claim 文件（`docs/ai-context/tasks/claims/*.claim`，排除 `done/`）
+2. 活跃数 < 3 → 启动下一组中依赖已满足的任务
+3. 活跃数 = 3 → 剩余任务排队，写入 `docs/ai-context/tasks/queue/`
+
+启动命令（后台自动执行）：
 ```bash
-# 同项目任务：后台执行
-cd {项目目录} && claude -p "读取 docs/ai-context/tasks/async/{task-file}.md，按文件中的任务描述执行。完成后：1) 将结果追加到文件末尾 2) 将文件移到 async-done/ 3) 将 claim 移到 claims/done/"
-
-# 跨项目任务：指定项目目录
-claude --project-dir {目标项目路径} -p "读取 docs/ai-context/tasks/from-xxx.md，按文件中的排查清单执行..."
+# 注意：prompt 中需包含"完成后自动接续"的指令
+claude -p "你的任务是执行 docs/ai-context/tasks/async/{task-file}.md。
+完成后：
+1. 将结果写入任务文件末尾
+2. 将任务文件移到 async-done/
+3. 将 claim 移到 claims/done/
+4. 检查 docs/ai-context/tasks/queue/ 是否有排队任务
+5. 如果有且依赖已满足，自动开始执行
+6. 如果有但依赖未满足，告知用户等待哪个任务"
 ```
 
-使用 Bash 的 `run_in_background` 模式，多个任务同时启动。
+## Step 5：排队和接续
 
-**如果平台不支持后台执行**，提供新终端命令：
+剩余任务写入 `docs/ai-context/tasks/queue/`：
+
+```markdown
+# 排队任务：{任务标题}
+- 排队时间：{datetime}
+- 依赖任务：{Task-X, Task-Y}
+- 状态：等待 {Task-X} 完成
+```
+
+每个会话完成当前任务后，**自动检查队列**：
+
+```
+当前任务完成
+  │
+  ├─ 检查队列中第一个任务
+  │     ├─ 依赖全部满足 → 认领 + 启动
+  │     └─ 依赖未满足 → 跳过，检查下一个
+  │
+  └─ 告知用户：
+        "✅ Task-A 已完成。下一个可执行任务：Task-D。
+         ⏳ Task-E 仍需等待 Task-B（预计在会话2 中）。"
+```
+
+## Step 6：平台启动命令
+
+如果平台不支持后台自动执行，使用新终端窗口：
+
 ```bash
 # Windows
 start "Task" cmd /k "cd /d {dir} && claude"

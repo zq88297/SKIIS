@@ -401,6 +401,8 @@ description: >-
 | `docs/ai-context/pitfalls.md` | 踩坑记录 | **追加** |
 | `docs/ai-context/architecture.md` | 项目架构 | context-sync 生成 |
 
+**并发写入安全：** 多会话并行时，写入以上共享文件前必须通过文件锁：`mkdir docs/ai-context/.locks/{filename}.lock`（原子操作）。锁获取失败则等待重试，最多 5 次。详见 task-orchestrator 技能。
+
 ---
 
 ## 命令参考
