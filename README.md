@@ -15,9 +15,13 @@ SKIIS 是一套 Claude Code 自定义技能，解决 AI 辅助编程中最头疼
 irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex -Args '-Global'
 ```
 
-**macOS / Linux：**
+**macOS / Linux（二选一）：**
 ```bash
-curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
+# 方式一：直接下载运行（带超时和进度条）
+curl -#Lo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh --connect-timeout 10 --max-time 30 --retry 2 && bash /tmp/skiis-install.sh --global && rm /tmp/skiis-install.sh
+
+# 方式二：git clone 运行（国内网络更稳定，推荐）
+git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global && cd .. && rm -rf SKIIS
 ```
 
 安装后任何项目都能直接使用 `/project:xxx` 命令。
@@ -35,7 +39,7 @@ irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex
 **macOS / Linux：**
 ```bash
 cd 你的项目
-curl -sLo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh && bash /tmp/skiis-install.sh && rm /tmp/skiis-install.sh
+curl -#Lo /tmp/skiis-install.sh https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh --connect-timeout 10 --max-time 30 --retry 2 && bash /tmp/skiis-install.sh && rm /tmp/skiis-install.sh
 ```
 
 ### 克隆后运行
