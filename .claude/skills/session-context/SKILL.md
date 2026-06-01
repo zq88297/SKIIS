@@ -206,6 +206,48 @@ description: >-
 
 当项目根目录下有多个独立子功能目录时，使用**分层上下文**，避免每次在根目录 load 都扫描整个项目。
 
+**子模块识别标准（自动扫描时使用）：**
+
+一个目录被判定为"子模块"（值得创建独立上下文），需要满足以下条件：
+
+**✅ 自动识别信号（满足越多越确定）：**
+
+| 优先级 | 信号 | 示例 |
+|-------|------|------|
+| 🟢 确定 | 有独立构建配置 | `Makefile`、`CMakeLists.txt`、`package.json`、`Cargo.toml` |
+| 🟢 确定 | 有 main 入口文件 | `main.c`、`main.py`、`index.ts`、`main.go` |
+| 🟡 可能 | 目录名暗示独立功能 | `ike-module/`、`key-exchange/`、`log-collector/` |
+| 🟡 可能 | 有独立的 include/lib 子目录 | `src/`、`lib/`、`include/` 在该目录下 |
+
+**❌ 排除规则（永远不会被识别为子模块）：**
+
+| 目录 | 原因 |
+|------|------|
+| `src/`、`lib/`、`include/`、`tests/`、`docs/`、`examples/` | 通用代码组织目录 |
+| `node_modules/`、`dist/`、`build/`、`target/`、`__pycache__/` | 构建产物 |
+| `.git/`、`.svn/`、`.vscode/`、`.idea/` | 工具配置目录 |
+| `assets/`、`static/`、`public/`、`resources/` | 静态资源目录 |
+
+**用户确认环节：**
+
+自动扫描完成后，列出识别结果让用户确认：
+
+```
+检测到以下子模块（含判断依据）：
+
+✅ ike-module/         — CMakeLists.txt + main.c
+✅ key-exchange/       — Makefile + main.c
+⚠️  utils/             — 只有 .c 文件，无构建配置
+❌ src/                — 通用目录，已跳过
+❌ tests/              — 通用目录，已跳过
+
+请确认：
+- 是否将 utils/ 也作为子模块？
+- 是否有其他需要创建上下文的目录？
+```
+
+用户确认后的增减结果记录到根目录的 `architecture.md` 中，之后不再重复询问。
+
 **初始化流程（根目录，只做一次）：**
 
 ```
