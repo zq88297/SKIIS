@@ -46,7 +46,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | 命令 | 用途 |
 | ---- | ---- |
 | `/project:session-load` | 加载上下文 / 新项目自动初始化 |
-| `/project:session-save` | 保存当前进度 |
+| `/project:session-save` | 保存当前进度（含具体下一步） |
 | `/project:session-end` | 结束会话（健康检查 + 保存） |
 | `/project:context-check` | 上下文健康度诊断 |
 | `/project:context-sync` | 同步项目架构文档 |
