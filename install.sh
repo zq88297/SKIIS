@@ -1,17 +1,18 @@
 #!/bin/bash
 # SKIIS 一键安装脚本 (macOS / Linux / Git Bash)
-# 用法: ./install.sh [目标项目路径]
-# 示例: ./install.sh .
-#       ./install.sh ~/my-project
-#       curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash
+# 用法:
+#   项目安装:  ./install.sh [目标项目路径]
+#   全局安装:  ./install.sh --global
+#
+# 示例:
+#   ./install.sh .                 # 安装到当前项目
+#   ./install.sh ~/my-project      # 安装到指定项目
+#   ./install.sh --global          # 全局安装（所有项目可用）
+#
+# 远程安装（全局）:
+#   curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash -s -- --global
 
 set -e
-
-TARGET="${1:-.}"
-TARGET="$(cd "$TARGET" 2>/dev/null && pwd || echo "$TARGET")"
-
-# 获取脚本所在目录
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 颜色
 RED='\033[0;31m'
@@ -19,6 +20,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 GRAY='\033[0;90m'
+MAGENTA='\033[0;35m'
 NC='\033[0m'
 
 section() { echo -e "${YELLOW}[$1]${NC} ${2}"; }
@@ -26,25 +28,52 @@ ok()     { echo -e "  ${GREEN}✅${NC} ${1}"; }
 skip()   { echo -e "  ${GRAY}⏭️${NC}  ${1}"; }
 warn()   { echo -e "  ${RED}⚠️${NC}  ${1}"; }
 
+# 检查参数
+IS_GLOBAL=false
+TARGET="."
+
+for arg in "$@"; do
+    case "$arg" in
+        --global|-g)
+            IS_GLOBAL=true
+            ;;
+        *)
+            TARGET="$arg"
+            ;;
+    esac
+done
+
+# 获取脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if $IS_GLOBAL; then
+    TARGET_DIR="$HOME/.claude"
+else
+    TARGET_DIR="$(cd "$TARGET" 2>/dev/null && pwd || echo "$TARGET")"
+fi
+
 echo ""
 echo -e "${CYAN}========================================${NC}"
 echo -e "${CYAN}  SKIIS — Claude Code 上下文管理技能${NC}"
-echo -e "${CYAN}  安装脚本${NC}"
+if $IS_GLOBAL; then
+    echo -e "${MAGENTA}  全局安装（所有项目可用）${NC}"
+else
+    echo -e "${CYAN}  项目安装${NC}"
+fi
 echo -e "${CYAN}========================================${NC}"
 echo ""
-echo "目标项目: $TARGET"
+echo "安装目录: $TARGET_DIR"
 echo ""
 
 # ============================================
 # 1. 安装命令文件 (.claude/commands/project/)
-#    目录名 "project" 对应 /project:xxx 前缀
 # ============================================
 section "1/5" "安装命令文件..."
 
-mkdir -p "$TARGET/.claude/commands/project"
+mkdir -p "$TARGET_DIR/commands/project"
 
 if [ -d "$SCRIPT_DIR/.claude/commands/project" ]; then
-    cp -f "$SCRIPT_DIR/.claude/commands/project/"*.md "$TARGET/.claude/commands/project/" 2>/dev/null || true
+    cp -f "$SCRIPT_DIR/.claude/commands/project/"*.md "$TARGET_DIR/commands/project/" 2>/dev/null || true
     ok "5 个命令已安装 (/project:session-load 等)"
 else
     warn "未找到命令源文件，请确认从完整仓库运行"
@@ -55,7 +84,7 @@ fi
 # ============================================
 section "2/5" "安装技能文件..."
 
-SKILLS_DIR="$TARGET/.claude/skills/session-context"
+SKILLS_DIR="$TARGET_DIR/skills/session-context"
 mkdir -p "$SKILLS_DIR/commands"
 
 if [ -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
@@ -64,72 +93,55 @@ if [ -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
 fi
 
 # ============================================
-# 3. 智能合并 hooks.json
+# 3. hooks.json（仅项目安装）
 # ============================================
-section "3/5" "配置 Hooks（智能合并）..."
+section "3/5" "配置 Hooks..."
 
-HOOKS_FILE="$TARGET/.claude/hooks.json"
-SKIIS_MARKER="SKIIS"
+if $IS_GLOBAL; then
+    skip "全局安装跳过 hooks（hooks 属于项目级配置）"
+else
+    HOOKS_FILE="$TARGET_DIR/hooks.json"
+    SKIIS_MARKER="SKIIS"
 
-if [ -f "$HOOKS_FILE" ]; then
-    if grep -q "$SKIIS_MARKER" "$HOOKS_FILE" 2>/dev/null; then
-        skip "hooks.json 已包含 SKIIS 配置，跳过"
-    else
-        # 尝试用 Python 合并，失败则用备份策略
-        if command -v python3 &>/dev/null; then
-            python3 -c "
-import json, sys
-try:
-    with open('$HOOKS_FILE', 'r') as f:
-        existing = json.load(f)
-except:
-    # 解析失败，备份后覆盖
-    import shutil
-    shutil.copy('$HOOKS_FILE', '$HOOKS_FILE.bak')
-    print('BACKUP')
-    sys.exit(0)
-
-# 确保 hooks 键存在
+    if [ -f "$HOOKS_FILE" ]; then
+        if grep -q "$SKIIS_MARKER" "$HOOKS_FILE" 2>/dev/null; then
+            skip "hooks.json 已包含 SKIIS 配置，跳过"
+        else
+            if command -v python3 &>/dev/null; then
+                python3 -c "
+import json
+with open('$HOOKS_FILE', 'r') as f:
+    existing = json.load(f)
 if 'hooks' not in existing:
     existing['hooks'] = {}
-
-# 合并 PostToolUse
 if 'PostToolUse' not in existing['hooks']:
     existing['hooks']['PostToolUse'] = []
 existing['hooks']['PostToolUse'].append({
     'matcher': 'Write|Edit',
     'command': 'bash \${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh'
 })
-
-# 合并 PreToolUse
 if 'PreToolUse' not in existing['hooks']:
     existing['hooks']['PreToolUse'] = []
 existing['hooks']['PreToolUse'].append({
     'matcher': 'Bash',
     'command': 'bash \${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh'
 })
-
-# 更新 description
 if 'SKIIS' not in existing.get('description', ''):
     existing['description'] = existing.get('description', '') + ' + SKIIS'
-
 with open('$HOOKS_FILE', 'w') as f:
     json.dump(existing, f, indent=2, ensure_ascii=False)
-print('MERGED')
-" 2>&1
-            merge_result=$?
-            if [ $merge_result -eq 0 ]; then
-                ok "hooks.json 已合并（保留原有配置）"
+" 2>/dev/null && ok "hooks.json 已合并（保留原有配置）" || {
+                    cp "$HOOKS_FILE" "$HOOKS_FILE.bak"
+                    warn "Python 不可用，hooks.json 已备份为 .bak"
+                }
+            else
+                cp "$HOOKS_FILE" "$HOOKS_FILE.bak"
+                warn "无 Python，hooks.json 已备份为 .bak"
             fi
-        else
-            # 无 Python，备份后覆盖
-            cp "$HOOKS_FILE" "$HOOKS_FILE.bak"
-            warn "无 Python 环境，hooks.json 已备份为 .bak 后覆盖"
         fi
-    fi
-else
-    mkdir -p "$TARGET/.claude"
-    cat > "$HOOKS_FILE" << 'HOOKSEOF'
+    else
+        mkdir -p "$(dirname "$HOOKS_FILE")"
+        cat > "$HOOKS_FILE" << 'HOOKSEOF'
 {
   "description": "SKIIS 上下文管理自动检查",
   "hooks": {
@@ -148,31 +160,38 @@ else
   }
 }
 HOOKSEOF
-    ok "hooks.json 已创建"
+        ok "hooks.json 已创建"
+    fi
 fi
 
 # ============================================
-# 4. 安装 hooks 脚本
+# 4. hooks 脚本（仅项目安装）
 # ============================================
 section "4/5" "安装 Hooks 脚本..."
 
-mkdir -p "$TARGET/.claude/hooks"
-
-if [ -d "$SCRIPT_DIR/.claude/hooks" ]; then
-    cp -f "$SCRIPT_DIR/.claude/hooks/"*.sh "$TARGET/.claude/hooks/" 2>/dev/null || true
-    chmod +x "$TARGET/.claude/hooks/"*.sh 2>/dev/null || true
-    ok "hooks 脚本已安装"
+if $IS_GLOBAL; then
+    skip "全局安装跳过 hooks 脚本"
+else
+    mkdir -p "$TARGET_DIR/hooks"
+    if [ -d "$SCRIPT_DIR/.claude/hooks" ]; then
+        cp -f "$SCRIPT_DIR/.claude/hooks/"*.sh "$TARGET_DIR/hooks/" 2>/dev/null || true
+        chmod +x "$TARGET_DIR/hooks/"*.sh 2>/dev/null || true
+        ok "hooks 脚本已安装"
+    fi
 fi
 
 # ============================================
-# 5. 智能合并 CLAUDE.md
+# 5. CLAUDE.md（仅项目安装）
 # ============================================
-section "5/5" "配置 CLAUDE.md（智能合并）..."
+section "5/5" "配置 CLAUDE.md..."
 
-CLAUDE_FILE="$TARGET/CLAUDE.md"
-SECTION_MARKER="## 自动上下文管理规则"
+if $IS_GLOBAL; then
+    skip "全局安装跳过 CLAUDE.md（属于项目文件）"
+else
+    CLAUDE_FILE="$TARGET_DIR/CLAUDE.md"
+    SECTION_MARKER="## 自动上下文管理规则"
 
-SKIIS_SECTION='
+    SKIIS_SECTION='
 ---
 
 ## 自动上下文管理规则
@@ -185,8 +204,6 @@ SKIIS_SECTION='
 2. 读取 docs/ai-context/decisions.md（最近 5 条）
 3. 读取 docs/ai-context/pitfalls.md（最近 5 条）
 4. 向用户呈现上下文摘要，询问"请告诉我需要做什么"
-
-如果上述文件不存在，主动提示用户初始化。
 
 ### 规则 2：架构变化时自动提醒
 - 新增/删除顶层目录 → 提醒运行 /project:context-sync
@@ -223,29 +240,33 @@ SKIIS_SECTION='
 | `/project:context-sync` | 同步项目架构文档 |
 '
 
-if [ -f "$CLAUDE_FILE" ]; then
-    if grep -qF "$SECTION_MARKER" "$CLAUDE_FILE" 2>/dev/null; then
-        skip "CLAUDE.md 已包含 SKIIS 规则，跳过"
+    if [ -f "$CLAUDE_FILE" ]; then
+        if grep -qF "$SECTION_MARKER" "$CLAUDE_FILE" 2>/dev/null; then
+            skip "CLAUDE.md 已包含 SKIIS 规则，跳过"
+        else
+            echo "$SKIIS_SECTION" >> "$CLAUDE_FILE"
+            ok "CLAUDE.md 已追加 SKIIS 规则（保留原有内容）"
+        fi
     else
-        echo "$SKIIS_SECTION" >> "$CLAUDE_FILE"
-        ok "CLAUDE.md 已追加 SKIIS 规则（保留原有内容）"
+        echo "$SKIIS_SECTION" > "$CLAUDE_FILE"
+        ok "CLAUDE.md 已创建"
     fi
-else
-    echo "$SKIIS_SECTION" > "$CLAUDE_FILE"
-    ok "CLAUDE.md 已创建"
 fi
 
 # ============================================
-# 6. 初始化 docs/ai-context/（仅首次）
+# 6. 初始化 docs/ai-context/（仅项目安装 + 首次）
 # ============================================
 echo ""
 
-CONTEXT_DIR="$TARGET/docs/ai-context"
-if [ ! -d "$CONTEXT_DIR" ]; then
-    echo -e "${CYAN}🔍 首次安装，初始化上下文目录...${NC}"
-    mkdir -p "$CONTEXT_DIR"
+if $IS_GLOBAL; then
+    echo -e "${GRAY}📂 全局安装完成（仅命令和技能，项目级文件需在项目中单独初始化）${NC}"
+else
+    CONTEXT_DIR="$TARGET_DIR/docs/ai-context"
+    if [ ! -d "$CONTEXT_DIR" ]; then
+        echo -e "${CYAN}🔍 首次安装，初始化上下文目录...${NC}"
+        mkdir -p "$CONTEXT_DIR"
 
-    cat > "$CONTEXT_DIR/current-task.md" << EOF
+        cat > "$CONTEXT_DIR/current-task.md" << EOF
 > 最后更新: $(date '+%Y-%m-%d %H:%M')
 
 # 当前任务
@@ -263,21 +284,22 @@ if [ ! -d "$CONTEXT_DIR" ]; then
 暂无
 EOF
 
-    cat > "$CONTEXT_DIR/decisions.md" << EOF
+        cat > "$CONTEXT_DIR/decisions.md" << EOF
 # 技术决策记录
 
 记录项目中的关键技术选择及原因。每条决策包含：编号、日期、背景、选项、选择、原因。
 EOF
 
-    cat > "$CONTEXT_DIR/pitfalls.md" << EOF
+        cat > "$CONTEXT_DIR/pitfalls.md" << EOF
 # 踩坑记录
 
 记录遇到的问题和解决方案，避免重复踩坑。
 EOF
 
-    ok "docs/ai-context/ 已初始化"
-else
-    echo -e "${GRAY}📂 docs/ai-context/ 已存在，保留用户数据${NC}"
+        ok "docs/ai-context/ 已初始化"
+    else
+        echo -e "${GRAY}📂 docs/ai-context/ 已存在，保留用户数据${NC}"
+    fi
 fi
 
 # ============================================
@@ -285,16 +307,30 @@ fi
 # ============================================
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}  SKIIS 安装完成！${NC}"
+if $IS_GLOBAL; then
+    echo -e "${GREEN}  SKIIS 全局安装完成！${NC}"
+else
+    echo -e "${GREEN}  SKIIS 安装完成！${NC}"
+fi
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "已安装:"
-echo "  ✅ 5 个命令: /project:session-{load,save,end} /project:context-{check,sync}"
-echo "  ✅ hooks.json (智能合并)"
-echo "  ✅ hooks 脚本"
-echo "  ✅ CLAUDE.md (智能合并)"
-[ -d "$CONTEXT_DIR" ] && echo "  ✅ docs/ai-context/"
+echo "  ✅ /project:session-load, session-save, session-end"
+echo "  ✅ /project:context-check, context-sync"
+if ! $IS_GLOBAL; then
+    echo "  ✅ hooks.json (智能合并)"
+    echo "  ✅ hooks 脚本"
+    echo "  ✅ CLAUDE.md (智能合并)"
+fi
 echo ""
-echo "下次启动 Claude Code 时输入:"
-echo -e "  ${CYAN}/project:session-load${NC}"
+
+if $IS_GLOBAL; then
+    echo -e "${CYAN}任何项目中都可以直接使用 /project:xxx 命令了${NC}"
+    echo ""
+    echo -e "${YELLOW}💡 在具体项目中运行${NC}"
+    echo -e "   ./install.sh .    （安装项目级 hooks、CLAUDE.md、上下文目录）"
+else
+    echo "重启 Claude Code，输入:"
+    echo -e "  ${CYAN}/project:session-load${NC}"
+fi
 echo ""

@@ -1,22 +1,43 @@
 # SKIIS 一键安装脚本 (Windows PowerShell)
-# 用法: .\install.ps1 [目标项目路径]
-# 示例: .\install.ps1 .
-#       .\install.ps1 C:\my-project
+# 用法:
+#   项目安装:  .\install.ps1 [目标项目路径]
+#   全局安装:  .\install.ps1 -Global
+#
+# 示例:
+#   .\install.ps1 .                 # 安装到当前项目
+#   .\install.ps1 C:\my-project     # 安装到指定项目
+#   .\install.ps1 -Global           # 全局安装（所有项目可用）
 
 param(
-    [string]$Target = "."
+    [string]$Target = ".",
+    [switch]$Global
 )
 
 $ErrorActionPreference = "Stop"
-$targetDir = (Resolve-Path $Target).Path
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+if ($Global) {
+    # 全局安装：安装到用户目录 ~/.claude/
+    $targetDir = "$env:USERPROFILE\.claude"
+    $isGlobal = $true
+}
+else {
+    $targetDir = (Resolve-Path $Target).Path
+    $isGlobal = $false
+}
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  SKIIS — Claude Code 上下文管理技能" -ForegroundColor Cyan
-Write-Host "  安装脚本" -ForegroundColor Cyan
+if ($isGlobal) {
+    Write-Host "  全局安装（所有项目可用）" -ForegroundColor Magenta
+}
+else {
+    Write-Host "  项目安装" -ForegroundColor Cyan
+}
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "目标项目: $targetDir"
+Write-Host "安装目录: $targetDir"
 Write-Host ""
 
 # ============================================
@@ -25,12 +46,9 @@ Write-Host ""
 # ============================================
 Write-Host "[1/5] 安装命令文件..." -ForegroundColor Yellow
 
-$commandsDir = "$targetDir\.claude\commands\project"
+$commandsDir = "$targetDir\commands\project"
 New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-# 从克隆的仓库复制所有命令文件
 $sourceCommands = "$scriptDir\.claude\commands\project\"
 if (Test-Path $sourceCommands) {
     Copy-Item -Path "$sourceCommands*" -Destination $commandsDir -Force
@@ -45,110 +63,108 @@ else {
 # ============================================
 Write-Host "[2/5] 安装技能文件..." -ForegroundColor Yellow
 
-$skillsDir = "$targetDir\.claude\skills\session-context"
+$skillsDir = "$targetDir\skills\session-context"
 New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
 
 $sourceSkills = "$scriptDir\.claude\skills\session-context\"
-
 if (Test-Path $sourceSkills) {
     Copy-Item -Path "$sourceSkills*" -Destination $skillsDir -Recurse -Force
     Write-Host "  ✅ session-context 技能已安装" -ForegroundColor Green
 }
 
 # ============================================
-# 3. 智能合并 hooks.json
+# 3. hooks.json（仅项目安装）
 # ============================================
-Write-Host "[3/5] 配置 Hooks（智能合并）..." -ForegroundColor Yellow
+Write-Host "[3/5] 配置 Hooks..." -ForegroundColor Yellow
 
-$hooksFile = "$targetDir\.claude\hooks.json"
-$skuusMarker = "SKIIS"  # 用于检测是否已安装
-
-# 要添加的 SKIIS hooks
-$skuusHooks = @{
-    "description" = "SKIIS 上下文管理自动检查"
-    "hooks" = @{
-        "PostToolUse" = @(
-            @{
-                "matcher" = "Write|Edit"
-                "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh`"
-            }
-        )
-        "PreToolUse" = @(
-            @{
-                "matcher" = "Bash"
-                "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh`"
-            }
-        )
-    }
-}
-
-if (Test-Path $hooksFile) {
-    # 已有 hooks.json → 检查是否已包含 SKIIS
-    $existingContent = Get-Content $hooksFile -Raw -Encoding UTF8 | Out-String
-    if ($existingContent -match "SKIIS") {
-        Write-Host "  ⏭️  hooks.json 已包含 SKIIS 配置，跳过" -ForegroundColor Gray
-    }
-    else {
-        # 合并：保留用户原有 hooks，追加 SKIIS hooks
-        try {
-            $existing = Get-Content $hooksFile -Raw -Encoding UTF8 | ConvertFrom-Json
-
-            # 合并 PostToolUse
-            if (-not $existing.hooks) { $existing | Add-Member -NotePropertyName "hooks" -NotePropertyValue @{} -Force }
-            if (-not $existing.hooks.PostToolUse) { $existing.hooks | Add-Member -NotePropertyName "PostToolUse" -NotePropertyValue @() -Force }
-            $existing.hooks.PostToolUse += $skuusHooks.hooks.PostToolUse[0]
-
-            # 合并 PreToolUse
-            if (-not $existing.hooks.PreToolUse) { $existing.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @() -Force }
-            $existing.hooks.PreToolUse += $skuusHooks.hooks.PreToolUse[0]
-
-            # 更新 description
-            if ($existing.description -notmatch "SKIIS") {
-                $existing.description = $existing.description + " + SKIIS"
-            }
-
-            $existing | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
-            Write-Host "  ✅ hooks.json 已合并（保留原有配置）" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "  ⚠️  hooks.json 格式异常，创建备份后覆盖: $hooksFile.bak" -ForegroundColor Magenta
-            Copy-Item $hooksFile "$hooksFile.bak" -Force
-            $skuusHooks | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
-            Write-Host "  ✅ hooks.json 已安装（旧文件备份为 .bak）" -ForegroundColor Green
-        }
-    }
+if ($isGlobal) {
+    Write-Host "  ⏭️  全局安装跳过 hooks（hooks 属于项目级配置）" -ForegroundColor Gray
 }
 else {
-    # 不存在 → 直接创建
-    New-Item -ItemType Directory -Force -Path "$targetDir\.claude" | Out-Null
-    $skuusHooks | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
-    Write-Host "  ✅ hooks.json 已创建" -ForegroundColor Green
+    $hooksFile = "$targetDir\hooks.json"
+    $skuusMarker = "SKIIS"
+
+    $skuusHooks = @{
+        "description" = "SKIIS 上下文管理自动检查"
+        "hooks" = @{
+            "PostToolUse" = @(
+                @{
+                    "matcher" = "Write|Edit"
+                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh`"
+                }
+            )
+            "PreToolUse" = @(
+                @{
+                    "matcher" = "Bash"
+                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh`"
+                }
+            )
+        }
+    }
+
+    New-Item -ItemType Directory -Force -Path (Split-Path $hooksFile) | Out-Null
+
+    if (Test-Path $hooksFile) {
+        $existingContent = Get-Content $hooksFile -Raw -Encoding UTF8 | Out-String
+        if ($existingContent -match "SKIIS") {
+            Write-Host "  ⏭️  hooks.json 已包含 SKIIS 配置，跳过" -ForegroundColor Gray
+        }
+        else {
+            try {
+                $existing = Get-Content $hooksFile -Raw -Encoding UTF8 | ConvertFrom-Json
+                if (-not $existing.hooks) { $existing | Add-Member -NotePropertyName "hooks" -NotePropertyValue @{} -Force }
+                if (-not $existing.hooks.PostToolUse) { $existing.hooks | Add-Member -NotePropertyName "PostToolUse" -NotePropertyValue @() -Force }
+                $existing.hooks.PostToolUse += $skuusHooks.hooks.PostToolUse[0]
+                if (-not $existing.hooks.PreToolUse) { $existing.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @() -Force }
+                $existing.hooks.PreToolUse += $skuusHooks.hooks.PreToolUse[0]
+                if ($existing.description -notmatch "SKIIS") { $existing.description = $existing.description + " + SKIIS" }
+                $existing | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
+                Write-Host "  ✅ hooks.json 已合并（保留原有配置）" -ForegroundColor Green
+            }
+            catch {
+                Copy-Item $hooksFile "$hooksFile.bak" -Force
+                $skuusHooks | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
+                Write-Host "  ✅ hooks.json 已安装（旧文件备份为 .bak）" -ForegroundColor Green
+            }
+        }
+    }
+    else {
+        $skuusHooks | ConvertTo-Json -Depth 10 | Set-Content $hooksFile -Encoding UTF8
+        Write-Host "  ✅ hooks.json 已创建" -ForegroundColor Green
+    }
 }
 
 # ============================================
-# 4. 复制 hooks 脚本
+# 4. hooks 脚本（仅项目安装）
 # ============================================
 Write-Host "[4/5] 安装 Hooks 脚本..." -ForegroundColor Yellow
 
-$hooksScriptDir = "$targetDir\.claude\hooks"
-New-Item -ItemType Directory -Force -Path $hooksScriptDir | Out-Null
-
-$sourceHooks = "$scriptDir\.claude\hooks\"
-if (Test-Path $sourceHooks) {
-    Copy-Item -Path "$sourceHooks*.sh" -Destination $hooksScriptDir -Force
-    Write-Host "  ✅ hooks 脚本已安装" -ForegroundColor Green
+if ($isGlobal) {
+    Write-Host "  ⏭️  全局安装跳过 hooks 脚本" -ForegroundColor Gray
+}
+else {
+    $hooksScriptDir = "$targetDir\hooks"
+    New-Item -ItemType Directory -Force -Path $hooksScriptDir | Out-Null
+    $sourceHooks = "$scriptDir\.claude\hooks\"
+    if (Test-Path $sourceHooks) {
+        Copy-Item -Path "$sourceHooks*.sh" -Destination $hooksScriptDir -Force
+        Write-Host "  ✅ hooks 脚本已安装" -ForegroundColor Green
+    }
 }
 
 # ============================================
-# 5. 智能合并 CLAUDE.md
+# 5. CLAUDE.md（仅项目安装）
 # ============================================
-Write-Host "[5/5] 配置 CLAUDE.md（智能合并）..." -ForegroundColor Yellow
+Write-Host "[5/5] 配置 CLAUDE.md..." -ForegroundColor Yellow
 
-$claudeFile = "$targetDir\CLAUDE.md"
-$skuusSectionMarker = "## 自动上下文管理规则"
+if ($isGlobal) {
+    Write-Host "  ⏭️  全局安装跳过 CLAUDE.md（属于项目文件）" -ForegroundColor Gray
+}
+else {
+    $claudeFile = "$targetDir\CLAUDE.md"
+    $skuusSectionMarker = "## 自动上下文管理规则"
 
-# SKIIS 要追加的规则片段（放在 CLAUDE.md 末尾）
-$skuusSection = @'
+    $skuusSection = @'
 
 ---
 
@@ -162,8 +178,6 @@ $skuusSection = @'
 2. 读取 docs/ai-context/decisions.md（最近 5 条）
 3. 读取 docs/ai-context/pitfalls.md（最近 5 条）
 4. 向用户呈现上下文摘要，询问"请告诉我需要做什么"
-
-如果上述文件不存在，主动提示用户初始化。
 
 ### 规则 2：架构变化时自动提醒
 - 新增/删除顶层目录 → 提醒运行 /project:context-sync
@@ -200,34 +214,37 @@ $skuusSection = @'
 | `/project:context-sync` | 同步项目架构文档 |
 '@
 
-if (Test-Path $claudeFile) {
-    $existingClaude = Get-Content $claudeFile -Raw -Encoding UTF8 | Out-String
-    if ($existingClaude -match [regex]::Escape($skuusSectionMarker)) {
-        Write-Host "  ⏭️  CLAUDE.md 已包含 SKIIS 规则，跳过" -ForegroundColor Gray
+    if (Test-Path $claudeFile) {
+        $existingClaude = Get-Content $claudeFile -Raw -Encoding UTF8 | Out-String
+        if ($existingClaude -match [regex]::Escape($skuusSectionMarker)) {
+            Write-Host "  ⏭️  CLAUDE.md 已包含 SKIIS 规则，跳过" -ForegroundColor Gray
+        }
+        else {
+            Add-Content $claudeFile -Value $skuusSection -Encoding UTF8
+            Write-Host "  ✅ CLAUDE.md 已追加 SKIIS 规则（保留原有内容）" -ForegroundColor Green
+        }
     }
     else {
-        # 追加到文件末尾
-        Add-Content $claudeFile -Value $skuusSection -Encoding UTF8
-        Write-Host "  ✅ CLAUDE.md 已追加 SKIIS 规则（保留原有内容）" -ForegroundColor Green
+        Set-Content $claudeFile -Value $skuusSection -Encoding UTF8
+        Write-Host "  ✅ CLAUDE.md 已创建" -ForegroundColor Green
     }
-}
-else {
-    # 不存在 → 创建
-    Set-Content $claudeFile -Value $skuusSection -Encoding UTF8
-    Write-Host "  ✅ CLAUDE.md 已创建" -ForegroundColor Green
 }
 
 # ============================================
-# 6. 初始化 docs/ai-context/（仅首次）
+# 6. 初始化 docs/ai-context/（仅项目安装 + 首次）
 # ============================================
 Write-Host ""
 
-$contextDir = "$targetDir\docs\ai-context"
-if (-not (Test-Path $contextDir)) {
-    Write-Host "🔍 首次安装，初始化上下文目录..." -ForegroundColor Cyan
-    New-Item -ItemType Directory -Force -Path $contextDir | Out-Null
+if ($isGlobal) {
+    Write-Host "📂 全局安装完成（仅命令和技能，项目级文件需在项目中单独初始化）" -ForegroundColor Gray
+}
+else {
+    $contextDir = "$targetDir\docs\ai-context"
+    if (-not (Test-Path $contextDir)) {
+        Write-Host "🔍 首次安装，初始化上下文目录..." -ForegroundColor Cyan
+        New-Item -ItemType Directory -Force -Path $contextDir | Out-Null
 
-    Set-Content "$contextDir\current-task.md" -Value @"
+        Set-Content "$contextDir\current-task.md" -Value @"
 > 最后更新: $(Get-Date -Format 'yyyy-MM-dd HH:mm')
 
 # 当前任务
@@ -245,22 +262,23 @@ if (-not (Test-Path $contextDir)) {
 暂无
 "@ -Encoding UTF8
 
-    Set-Content "$contextDir\decisions.md" -Value @"
+        Set-Content "$contextDir\decisions.md" -Value @"
 # 技术决策记录
 
 记录项目中的关键技术选择及原因。每条决策包含：编号、日期、背景、选项、选择、原因。
 "@ -Encoding UTF8
 
-    Set-Content "$contextDir\pitfalls.md" -Value @"
+        Set-Content "$contextDir\pitfalls.md" -Value @"
 # 踩坑记录
 
 记录遇到的问题和解决方案，避免重复踩坑。
 "@ -Encoding UTF8
 
-    Write-Host "  ✅ docs/ai-context/ 已初始化" -ForegroundColor Green
-}
-else {
-    Write-Host "📂 docs/ai-context/ 已存在，保留用户数据" -ForegroundColor Gray
+        Write-Host "  ✅ docs/ai-context/ 已初始化" -ForegroundColor Green
+    }
+    else {
+        Write-Host "📂 docs/ai-context/ 已存在，保留用户数据" -ForegroundColor Gray
+    }
 }
 
 # ============================================
@@ -268,16 +286,32 @@ else {
 # ============================================
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "  SKIIS 安装完成！" -ForegroundColor Green
+if ($isGlobal) {
+    Write-Host "  SKIIS 全局安装完成！" -ForegroundColor Green
+}
+else {
+    Write-Host "  SKIIS 安装完成！" -ForegroundColor Green
+}
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "已安装的内容:" -ForegroundColor White
-Write-Host "  ✅ 5 个命令: /project:session-{load,save,end} /project:context-{check,sync}"
-Write-Host "  ✅ hooks.json (智能合并)"
-Write-Host "  ✅ hooks 脚本"
-Write-Host "  ✅ CLAUDE.md (智能合并)"
-if (Test-Path $contextDir) { Write-Host "  ✅ docs/ai-context/" }
+Write-Host "已安装:" -ForegroundColor White
+Write-Host "  ✅ /project:session-load, session-save, session-end"
+Write-Host "  ✅ /project:context-check, context-sync"
+if (-not $isGlobal) {
+    Write-Host "  ✅ hooks.json (智能合并)"
+    Write-Host "  ✅ hooks 脚本"
+    Write-Host "  ✅ CLAUDE.md (智能合并)"
+}
 Write-Host ""
-Write-Host "下次启动 Claude Code 时，在项目目录输入:" -ForegroundColor White
-Write-Host "  /project:session-load" -ForegroundColor Cyan
+
+if ($isGlobal) {
+    Write-Host "任何项目中都可以直接使用 /project:xxx 命令了" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "💡 在具体项目中运行" -ForegroundColor White
+    Write-Host "   .\install.ps1 .    （安装项目级 hooks、CLAUDE.md、上下文目录）" -ForegroundColor Gray
+}
+else {
+    Write-Host "重启 Claude Code，输入:" -ForegroundColor White
+    Write-Host "  /project:session-load" -ForegroundColor Cyan
+}
 Write-Host ""

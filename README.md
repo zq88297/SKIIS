@@ -6,28 +6,62 @@
 
 SKIIS 是一套 Claude Code 自定义技能，解决 AI 辅助编程中最头疼的问题——**会话长了会变笨、换新会话丢失上下文**。它提供完整的上下文生命周期管理：加载 → 工作 → 保存 → 健康检查 → 结束。
 
-## 一键安装
+## 安装
 
-进入你的项目目录，运行：
+### 全局安装（推荐，一次安装所有项目可用）
 
-**Windows（PowerShell）：**
-
+**Windows：**
 ```powershell
+irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex -Args '-Global'
+```
+
+**macOS / Linux：**
+```bash
+curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash -s -- --global
+```
+
+安装后任何项目都能直接使用 `/project:xxx` 命令。
+
+### 项目安装（安装完整三件套：命令 + hooks + CLAUDE.md）
+
+进入项目目录运行：
+
+**Windows：**
+```powershell
+cd 你的项目
 irm https://raw.githubusercontent.com/zq88297/SKIIS/master/install.ps1 | iex
 ```
 
-**macOS / Linux / Git Bash：**
-
+**macOS / Linux：**
 ```bash
+cd 你的项目
 curl -sL https://raw.githubusercontent.com/zq88297/SKIIS/master/install.sh | bash
 ```
 
-或者先克隆再运行本地脚本：
+### 克隆后运行
 
 ```bash
 git clone https://github.com/zq88297/SKIIS.git
-cd SKIIS && ./install.sh ../我的项目    # 或 .\install.ps1 ..\我的项目
+cd SKIIS
+
+# 全局安装
+./install.sh --global          # macOS/Linux
+.\install.ps1 -Global           # Windows
+
+# 项目安装
+./install.sh ~/my-project      # macOS/Linux
+.\install.ps1 C:\my-project    # Windows
 ```
+
+### 两种安装的区别
+
+| 功能 | 全局安装 | 项目安装 |
+| ---- | -------- | -------- |
+| `/project:xxx` 命令 | ✅ 所有项目可用 | ✅ 当前项目可用 |
+| hooks 自动检查 | ❌ | ✅ |
+| CLAUDE.md 自动规则 | ❌ | ✅ |
+| docs/ai-context/ | ❌ | ✅ |
+| 适用场景 | 所有项目都能用命令 | 需要完整自动化体验 |
 
 ### 重复安装安全吗？
 
