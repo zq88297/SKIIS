@@ -387,15 +387,41 @@ description: >-
 
 ### 规则 6：hooks 自动补装
 
-当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时（比如老项目只装了全局命令），在 `/project:session-load` 时检测并询问：
+当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时，在 session-load 时检测并询问，用户确认后写入。
 
-> 检测到项目缺少 hooks 自动检测。是否需要自动安装？（推荐）
+### 规则 7：SVN / 多分支项目处理
 
-用户确认后，写入 hooks.json 和脚本文件。
+当检测到项目使用 SVN 或存在多分支结构（`trunk/`、`branches/`、`tags/` 等目录），**上下文只在当前工作目录创建**，绝不扫描兄弟分支。
 
----
+**识别信号：**
+- `.svn/` 目录存在
+- 顶层有 `trunk/`、`branches/`、`tags/` 目录结构
 
-## 上下文文件系统
+**行为规则：**
+
+```
+程序/
+├── trunk/                          ← 用户在 trunk 工作
+│   └── docs/ai-context/            ← 只在这里创建/读取
+├── branches/
+│   ├── feature-A/
+│   │   └── docs/ai-context/        ← 只在切换到 feature-A 时才读取这个
+│   ├── feature-B/                  ← 不打开 feature-B 就不碰
+│   └── bugfix-C/                   ← 不打开 bugfix-C 就不碰
+└── tags/
+    └── v1.0/                       ← tag 通常不创建上下文
+```
+
+**规则：**
+
+1. **只在当前工作目录创建上下文** — `docs/ai-context/` 直接放在 `pwd` 下（即当前分支目录内）
+2. **不向上扫描** — session-load 不会去父目录查找其他分支的上下文
+3. **不横向扫描** — session-load 不会进入兄弟分支目录
+4. **识别独立分支** — 如果 pwd 是 `程序/branches/feature-A/`，就把 feature-A 当作独立项目初始化
+5. **跨分支任务派发** — 如果在 trunk 发现问题，需要排查 feature-A，用 `/project:task-send ../branches/feature-A` 直接指定目标
+6. **排除 tags** — tags 目录通常不应创建上下文，除非用户明确要求
+
+这样无论有多少分支，每次 load 只读当前分支的上下文，不受其他分支影响。
 
 | 文件 | 用途 | 更新策略 |
 |------|------|---------|

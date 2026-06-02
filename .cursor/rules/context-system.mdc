@@ -97,3 +97,12 @@ alwaysApply: true
 - "加载上下文"、"恢复进度"、"上次做到哪了"、"继续工作" → 规则 1
 - "保存上下文"、"保存进度"、"记录一下" → 规则 5
 - "检查健康度"、"是不是上下文不够了" → 检查对话轮数和回复质量
+
+## SVN / 多分支项目
+
+如果项目使用 SVN 或有 `trunk/`、`branches/`、`tags/` 结构：
+- **上下文只在当前工作目录创建**，不扫描兄弟分支
+- 在 `程序/branches/feature-A/` 工作 → `docs/ai-context/` 只在 feature-A 下
+- 切换到 feature-B → 读取 feature-B 自己的上下文
+- tags 目录不创建上下文（除非用户要求）
+- 跨分支问题用自然语言派发："给 branches/feature-A 派个排查任务"
