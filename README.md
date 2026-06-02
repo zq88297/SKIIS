@@ -1,6 +1,8 @@
-# SKIIS — Claude Code 会话上下文管理技能
+# SKIIS — AI 编程助手会话上下文管理技能
 
-让 Claude Code 拥有持久化记忆，跨会话无缝衔接工作进度。
+让 AI（Claude Code / Cursor）拥有持久化记忆，跨会话无缝衔接工作进度。
+
+**跨 IDE 支持：** `.claude/`（Claude Code）+ `.cursor/rules/`（Cursor IDE）
 
 ## 这是什么？
 

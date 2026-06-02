@@ -104,7 +104,14 @@ fi
 # ============================================
 # 2. 安装技能文件
 # ============================================
-section "2/5" "安装技能文件..."
+# .cursor/rules/（Cursor IDE 支持）
+mkdir -p "$TARGET_DIR/.cursor/rules"
+if [ -d "$SCRIPT_DIR/.cursor/rules" ]; then
+    cp -f "$SCRIPT_DIR/.cursor/rules/"*.mdc "$TARGET_DIR/.cursor/rules/" 2>/dev/null || true
+    ok "Cursor 规则已安装 (.cursor/rules/*.mdc)"
+fi
+
+section "2/6" "安装技能文件..."
 
 # session-context
 SKILLS_DIR="$TARGET_DIR/skills/session-context"
@@ -125,7 +132,7 @@ fi
 # ============================================
 # 3. hooks.json（仅项目安装）
 # ============================================
-section "3/5" "配置 Hooks..."
+section "3/6" "配置 Hooks..."
 
 if $IS_GLOBAL; then
     skip "全局安装跳过 hooks（hooks 属于项目级配置）"
@@ -197,7 +204,7 @@ fi
 # ============================================
 # 4. hooks 脚本（仅项目安装）
 # ============================================
-section "4/5" "安装 Hooks 脚本..."
+section "4/6" "安装 Hooks 脚本..."
 
 if $IS_GLOBAL; then
     skip "全局安装跳过 hooks 脚本"
@@ -214,7 +221,7 @@ fi
 # 5. CLAUDE.md（仅项目安装，精简版）
 #   自动规则已在全局 SKILL.md 中，CLAUDE.md 只需引用
 # ============================================
-section "5/5" "配置 CLAUDE.md..."
+section "5/6" "配置 CLAUDE.md..."
 
 if $IS_GLOBAL; then
     skip "全局安装跳过（自动规则已在全局 skill 中生效）"

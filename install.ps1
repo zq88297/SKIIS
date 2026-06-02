@@ -60,7 +60,7 @@ Write-Host ""
 # 1. 复制命令文件 (.claude/commands/project/)
 #    目录名 "project" 对应 /project:xxx 前缀
 # ============================================
-Write-Host "[1/5] 安装命令文件..." -ForegroundColor Yellow
+Write-Host "[1/6] 安装命令文件..." -ForegroundColor Yellow
 
 $commandsDir = "$targetDir\commands\project"
 New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
@@ -77,7 +77,16 @@ else {
 # ============================================
 # 2. 复制技能文件 (.claude/skills/)
 # ============================================
-Write-Host "[2/5] 安装技能文件..." -ForegroundColor Yellow
+# .cursor/rules/（Cursor IDE 支持）
+$cursorDir = "$targetDir\.cursor\rules"
+New-Item -ItemType Directory -Force -Path $cursorDir | Out-Null
+$sourceCursor = "$scriptDir\.cursor\rules\"
+if (Test-Path $sourceCursor) {
+    Copy-Item -Path "$sourceCursor*" -Destination $cursorDir -Force
+    Write-Host "  ✅ Cursor 规则已安装 (.cursor/rules/*.mdc)" -ForegroundColor Green
+}
+
+Write-Host "[2/6] 安装技能文件..." -ForegroundColor Yellow
 
 # session-context
 $skillsDir = "$targetDir\skills\session-context"
@@ -100,7 +109,7 @@ if (Test-Path $sourceOrch) {
 # ============================================
 # 3. hooks.json（仅项目安装）
 # ============================================
-Write-Host "[3/5] 配置 Hooks..." -ForegroundColor Yellow
+Write-Host "[3/6] 配置 Hooks..." -ForegroundColor Yellow
 
 if ($isGlobal) {
     Write-Host "  ⏭️  全局安装跳过 hooks（hooks 属于项目级配置）" -ForegroundColor Gray
@@ -162,7 +171,7 @@ else {
 # ============================================
 # 4. hooks 脚本（仅项目安装）
 # ============================================
-Write-Host "[4/5] 安装 Hooks 脚本..." -ForegroundColor Yellow
+Write-Host "[4/6] 安装 Hooks 脚本..." -ForegroundColor Yellow
 
 if ($isGlobal) {
     Write-Host "  ⏭️  全局安装跳过 hooks 脚本" -ForegroundColor Gray
@@ -181,7 +190,7 @@ else {
 # 5. CLAUDE.md（仅项目安装，精简版）
 #   自动规则已在全局 SKILL.md 中，CLAUDE.md 只需引用
 # ============================================
-Write-Host "[5/5] 配置 CLAUDE.md..." -ForegroundColor Yellow
+Write-Host "[5/6] 配置 CLAUDE.md..." -ForegroundColor Yellow
 
 if ($isGlobal) {
     Write-Host "  ⏭️  全局安装跳过（自动规则已在全局 skill 中生效）" -ForegroundColor Gray
