@@ -1,16 +1,16 @@
 ﻿---
 name: session-context
 description: >-
-  Complete context lifecycle management for Claude Code projects — save, load,
-  and health-check session context across sessions. Use this skill whenever
-  the user wants to save their current progress, restore context at the start
-  of a new session, end a session cleanly, or check context health mid-session.
-  Triggers on phrases like "save my context", "save progress", "restore context",
-  "load context", "end session", "wrap up", "context health", "am I losing context",
-  "/project:session-save", "/project:session-load", "/project:session-end",
-  "/project:context-check", or when the user expresses concern about losing track
-  of work across sessions. Also trigger when the user asks to "remember where
-  we are", "bookmark this point", or mentions wanting to continue work later.
+  This skill MUST be triggered at the start of EVERY conversation. It manages
+  persistent context across sessions — loads task progress on startup, tracks
+  decisions and pitfalls, auto-initializes new projects, and reminds users to
+  save progress. Trigger on ANY user message that involves software work:
+  modifying code ("修改", "change", "fix"), investigating issues ("排查", "debug"),
+  asking how something works, generating plans, creating features, or just
+  starting a new conversation. Also trigger on "/project:session-load",
+  "/project:session-save", "/project:session-end", "/project:context-check",
+  "保存上下文", "加载上下文", "继续工作", "上次做到哪了". Essentially, trigger
+  on every conversation in a development project unless the user is just chatting.
 ---
 
 # Session Context Management

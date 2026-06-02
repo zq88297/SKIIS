@@ -1,11 +1,12 @@
 ---
 name: task-orchestrator
 description: >-
-  Intelligent task scheduler that reads SKIIS context files and orchestrates
-  parallel vs sequential task execution. Use when the user wants to "speed up
-  tasks", "run tasks in parallel", "plan execution order", "orchestrate work",
-  or asks "which tasks can run at the same time". Also triggers on /task:plan
-  and /task:run. Requires session-context skill to be installed.
+  Automatically triggered whenever the AI generates a multi-step plan (2+
+  steps). Analyzes task dependencies, identifies parallel execution groups,
+  manages concurrency limits (max 3), prevents session conflicts via claim
+  locks, and auto-launches parallel sessions. Also triggers on /task:plan,
+  /task:run, "parallel", "并行", "speed up", "同时执行". Requires
+  session-context skill.
 ---
 
 # Task Orchestrator
