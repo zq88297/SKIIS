@@ -20,7 +20,7 @@ SKIIS 是一套 Claude Code 全局技能，解决 AI 辅助编程中最头疼的
 
 ## 安装
 
-### 全局安装（一次，所有项目生效）
+### Claude Code（全局安装，一次所有项目生效）
 
 ```bash
 git clone https://github.com/zq88297/SKIIS.git
@@ -32,6 +32,24 @@ bash install.sh --global
 # Windows PowerShell
 .\install.ps1 -Global
 ```
+
+安装后重启 Claude Code，skill 自动触发（支持 skill + 斜杠命令 `/project:xxx` + hooks）。
+
+### Cursor IDE（复制规则文件到项目）
+
+```bash
+git clone https://github.com/zq88297/SKIIS.git
+
+# 把 Cursor 规则复制到你的项目
+cp -r SKIIS/.cursor/rules/ 你的项目/.cursor/rules/
+
+# 初始化上下文目录（可选，也可以让 AI 自动初始化）
+mkdir -p 你的项目/docs/ai-context/
+```
+
+安装后重启 Cursor，规则自动生效（支持自治规则 + 关键词触发，不需要斜杠命令）。
+
+> 不管用哪个 IDE，`docs/ai-context/` 上下文文件是通用的——在 Claude Code 里存的进度，Cursor 打开也能读。
 
 **这就够了。** 之后在任何项目打开 Claude Code，输入 `/project:session-load` 即可。
 
