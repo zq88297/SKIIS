@@ -1,16 +1,6 @@
 ﻿---
 name: session-context
-description: >-
-  This skill MUST be triggered at the start of EVERY conversation. It manages
-  persistent context across sessions — loads task progress on startup, tracks
-  decisions and pitfalls, auto-initializes new projects, and reminds users to
-  save progress. Trigger on ANY user message that involves software work:
-  modifying code ("修改", "change", "fix"), investigating issues ("排查", "debug"),
-  asking how something works, generating plans, creating features, or just
-  starting a new conversation. Also trigger on "/project:session-load",
-  "/project:session-save", "/project:session-end", "/project:context-check",
-  "保存上下文", "加载上下文", "继续工作", "上次做到哪了". Essentially, trigger
-  on every conversation in a development project unless the user is just chatting.
+description: "MUST trigger on EVERY conversation in a dev project. Auto-loads context (task progress, decisions, pitfalls). Trigger on: any code-related request (修改, 排查, debug, fix, change, investigate, generate, create, how to, 帮我), /project:session-*, 保存上下文, 加载上下文, 继续工作."
 ---
 
 # Session Context Management

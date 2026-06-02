@@ -1,12 +1,6 @@
 ---
 name: task-orchestrator
-description: >-
-  Automatically triggered whenever the AI generates a multi-step plan (2+
-  steps). Analyzes task dependencies, identifies parallel execution groups,
-  manages concurrency limits (max 3), prevents session conflicts via claim
-  locks, and auto-launches parallel sessions. Also triggers on /task:plan,
-  /task:run, "parallel", "并行", "speed up", "同时执行". Requires
-  session-context skill.
+description: "Auto-analyze multi-step plans for parallel execution. Trigger when AI generates 2+ step plans, or on /task:plan, /task:run, parallel, 并行, 同时执行."
 ---
 
 # Task Orchestrator
