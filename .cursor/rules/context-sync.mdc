@@ -1,0 +1,79 @@
+---
+description: SKIIS 项目架构自动同步 — 配置文件变化时自动更新 architecture.md
+globs: "**/{package.json,pyproject.toml,Cargo.toml,go.mod,Makefile,CMakeLists.txt,tsconfig.json,vite.config.*,next.config.*}"
+alwaysApply: false
+---
+
+# 项目架构自动同步
+
+当项目配置文件或目录结构发生变化时，自动更新 `docs/ai-context/architecture.md`。
+
+## 触发条件
+
+- 新增或删除了顶层目录
+- 安装了新的核心依赖
+- 切换了技术方案（状态管理、样式框架等）
+- 用户说"同步架构"、"更新项目文档"、"context-sync"
+
+## 执行流程
+
+### Phase 1：信息采集
+
+读取项目配置文件（存在就读）：
+- `package.json`、`pyproject.toml`、`Cargo.toml`、`go.mod`
+- `tsconfig.json`、`vite.config.ts`、`next.config.js`
+- `.eslintrc.*`、`.prettierrc.*`、`tailwind.config.*`
+- `.github/workflows/*.yml`、`Dockerfile`
+
+### Phase 2：生成/更新 architecture.md
+
+```markdown
+# 项目概述
+> 最后更新：{日期}
+
+## 基本信息
+- 项目名称 / 类型 / 技术栈 / 包管理器 / 构建工具
+
+## 目录结构
+{前 3 层目录树}
+
+## 模块划分
+| 目录 | 职责 | 文件数 |
+
+## 核心依赖
+| 依赖 | 版本 | 用途 |
+
+## 架构模式
+- 组件模式 / 状态管理 / 样式方案 / API 层 / 路由 / 测试
+
+## 脚本命令
+| 命令 | 用途 |
+```
+
+### Phase 3：变更对比
+
+对比已有文档，突出变更（新增/删除/升级），用户确认后写入。
+
+## 子模块识别标准
+
+一个目录被判定为"独立子模块"需要满足：
+
+| 信号 | 结论 |
+|------|------|
+| 有独立构建配置（Makefile、CMakeLists.txt 等） | 🟢 确定 |
+| 有 main 入口文件（main.c、main.py 等） | 🟢 确定 |
+| 目录名暗示独立功能 | 🟡 可能 |
+
+自动排除：`src/`、`tests/`、`docs/`、`node_modules/`、`dist/`、`.git/` 等通用目录。
+
+## 分层上下文
+
+大型多模块项目使用分层上下文（支持任意深度嵌套）：
+
+```
+项目根/docs/ai-context/         # 项目级（全局概览）
+子系统/docs/ai-context/          # 子系统级
+子模块/docs/ai-context/          # 模块级
+```
+
+每层独立运作，在哪层打开 Cursor 就用哪层的上下文。首次根目录加载时全量扫描，后续只做快速 diff（1-2 秒）。
