@@ -98,11 +98,20 @@ alwaysApply: true
 - "保存上下文"、"保存进度"、"记录一下" → 规则 5
 - "检查健康度"、"是不是上下文不够了" → 检查对话轮数和回复质量
 
-## SVN / 多分支项目
+## 分支上下文隔离（SVN + Git）
 
-如果项目使用 SVN 或有 `trunk/`、`branches/`、`tags/` 结构：
-- **上下文只在当前工作目录创建**，不扫描兄弟分支
-- 在 `程序/branches/feature-A/` 工作 → `docs/ai-context/` 只在 feature-A 下
-- 切换到 feature-B → 读取 feature-B 自己的上下文
-- tags 目录不创建上下文（除非用户要求）
-- 跨分支问题用自然语言派发："给 branches/feature-A 派个排查任务"
+**SVN（分支是物理目录）：** 上下文在 `$(pwd)/docs/ai-context/`，只在当前目录。
+
+**Git（分支共享工作目录）：** 用 `git rev-parse --abbrev-ref HEAD` 获取当前分支，上下文在 `docs/ai-context/{分支名}/`。
+
+```
+docs/ai-context/
+├── main/                 ← main 分支上下文
+├── feature-payment/      ← feature-payment 分支上下文
+└── architecture.md       ← 项目架构（所有分支共享）
+```
+
+- 切换分支自动切换上下文
+- 首次进入新分支自动初始化
+- `docs/ai-context/` 建议 gitignore（本地工作记录，不提交）
+- 跨分支任务："给 feature-payment 分支派个排查任务"

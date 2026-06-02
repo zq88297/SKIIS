@@ -389,39 +389,92 @@ description: >-
 
 当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时，在 session-load 时检测并询问，用户确认后写入。
 
-### 规则 7：SVN / 多分支项目处理
+### 规则 7：分支上下文隔离（支持 SVN 和 Git）
 
-当检测到项目使用 SVN 或存在多分支结构（`trunk/`、`branches/`、`tags/` 等目录），**上下文只在当前工作目录创建**，绝不扫描兄弟分支。
+**上下文跟随分支，互不干扰。**
 
-**识别信号：**
-- `.svn/` 目录存在
-- 顶层有 `trunk/`、`branches/`、`tags/` 目录结构
+#### SVN 项目（分支是独立目录）
 
-**行为规则：**
+SVN 的每个分支是物理目录副本。**上下文直接在当前工作目录创建。**
 
 ```
 程序/
-├── trunk/                          ← 用户在 trunk 工作
-│   └── docs/ai-context/            ← 只在这里创建/读取
+├── trunk/
+│   └── docs/ai-context/          ← 只在 trunk 工作才读
 ├── branches/
 │   ├── feature-A/
-│   │   └── docs/ai-context/        ← 只在切换到 feature-A 时才读取这个
-│   ├── feature-B/                  ← 不打开 feature-B 就不碰
-│   └── bugfix-C/                   ← 不打开 bugfix-C 就不碰
-└── tags/
-    └── v1.0/                       ← tag 通常不创建上下文
+│   │   └── docs/ai-context/      ← 切换到 feature-A 才读
+│   └── feature-B/                ← 不开就不碰
 ```
 
-**规则：**
+**SVN 规则：**
+1. 上下文放在 `$(pwd)/docs/ai-context/`，只在当前目录
+2. 不向上/横向扫描其他分支
+3. 跨分支任务 → `/project:task-send ../branches/feature-A`
 
-1. **只在当前工作目录创建上下文** — `docs/ai-context/` 直接放在 `pwd` 下（即当前分支目录内）
-2. **不向上扫描** — session-load 不会去父目录查找其他分支的上下文
-3. **不横向扫描** — session-load 不会进入兄弟分支目录
-4. **识别独立分支** — 如果 pwd 是 `程序/branches/feature-A/`，就把 feature-A 当作独立项目初始化
-5. **跨分支任务派发** — 如果在 trunk 发现问题，需要排查 feature-A，用 `/project:task-send ../branches/feature-A` 直接指定目标
-6. **排除 tags** — tags 目录通常不应创建上下文，除非用户明确要求
+#### Git 项目（分支共享工作目录）
 
-这样无论有多少分支，每次 load 只读当前分支的上下文，不受其他分支影响。
+Git 的所有分支共享同一个工作目录，需要用分支名隔离上下文文件。
+
+**目录结构：**
+
+```
+程序/
+├── docs/
+│   └── ai-context/               ← 上下文根目录（建议 gitignore）
+│       ├── main/                 ← main 分支的上下文
+│       │   ├── current-task.md
+│       │   ├── decisions.md
+│       │   └── pitfalls.md
+│       ├── feature-A/            ← feature-A 分支的上下文
+│       │   ├── current-task.md
+│       │   └── ...
+│       └── feature-B/
+│
+├── .gitignore                    ← 添加 docs/ai-context/
+```
+
+**Git 规则：**
+
+1. **自动检测当前分支** — 每次操作前，用 `git rev-parse --abbrev-ref HEAD` 获取当前分支名
+2. **分支子目录** — 上下文文件实际路径为 `docs/ai-context/{分支名}/current-task.md`
+3. **自动切换** — 切换分支后 session-load 自动读取新分支的上下文，无需手动操作
+4. **首次进入新分支** — 如果 `docs/ai-context/{分支名}/` 不存在，自动初始化（不用扫全项目）
+5. **gitignore** — 建议把 `docs/ai-context/` 加入 `.gitignore`，上下文是本地工作记录，不应提交到仓库
+6. **架构文档共享** — `architecture.md` 是项目级文件，放在 `docs/ai-context/` 根层，所有分支共享
+7. **跨分支任务派发** — "给 feature-A 分支派个排查任务"，目标路径自动为 `docs/ai-context/feature-A/`
+
+**自动初始化的智能判断：**
+
+```
+/project:session-load
+  │
+  ├─ 检测到 .git/ 存在 → Git 项目
+  │     └─ git rev-parse --abbrev-ref HEAD → "feature-A"
+  │           └─ 上下文路径：docs/ai-context/feature-A/
+  │
+  ├─ 检测到 .svn/ 或 trunk/branches/tags → SVN 项目
+  │     └─ 上下文路径：$(pwd)/docs/ai-context/
+  │
+  └─ 都没有 → 普通目录
+        └─ 上下文路径：docs/ai-context/
+```
+
+**首次进入分支的体验：**
+
+```
+用户 git checkout -b feature-payment
+输入问题
+
+AI（规则 0 自动执行）：
+  → git rev-parse → feature-payment
+  → docs/ai-context/feature-payment/ 不存在
+  → 规则 5 触发："检测到新分支 feature-payment，正在初始化上下文..."
+  → 创建 docs/ai-context/feature-payment/ 下的模板文件
+  → 提示：上下文已就绪，可以开始工作了
+```
+
+**无论多少分支，每次只读当前分支的上下文。切换分支自动切换上下文。**
 
 | 文件 | 用途 | 更新策略 |
 |------|------|---------|
