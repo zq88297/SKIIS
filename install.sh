@@ -250,17 +250,27 @@ else
 fi
 
 # ============================================
-# 6. 初始化 docs/ai-context/（仅项目安装 + 首次）
+# 6. 初始化上下文目录（仅项目安装 + 首次）
+#    新路径：.claude/context/（防误提交），兼容旧路径 docs/ai-context/
 # ============================================
 echo ""
 
 if $IS_GLOBAL; then
     echo -e "${GRAY}📂 全局安装完成（仅命令和技能，项目级文件需在项目中单独初始化）${NC}"
 else
-    CONTEXT_DIR="$TARGET_DIR/docs/ai-context"
+    # 优先新路径，兼容旧路径
+    if [ -d "$TARGET_DIR/docs/ai-context" ]; then
+        CONTEXT_DIR="$TARGET_DIR/docs/ai-context"
+        echo -e "${GRAY}📂 检测到旧路径 docs/ai-context/，继续使用${NC}"
+    else
+        CONTEXT_DIR="$TARGET_DIR/.claude/context"
+    fi
+
     if [ ! -d "$CONTEXT_DIR" ]; then
         echo -e "${CYAN}🔍 首次安装，初始化上下文目录...${NC}"
         mkdir -p "$CONTEXT_DIR"
+        mkdir -p "$CONTEXT_DIR/reference"
+        mkdir -p "$CONTEXT_DIR/tasks"
 
         cat > "$CONTEXT_DIR/current-task.md" << EOF
 > 最后更新: $(date '+%Y-%m-%d %H:%M')
@@ -292,9 +302,26 @@ EOF
 记录遇到的问题和解决方案，避免重复踩坑。
 EOF
 
-        ok "docs/ai-context/ 已初始化"
+        # 自动加入 .gitignore（Git 项目）
+        if [ -d "$TARGET_DIR/.git" ]; then
+            if ! grep -q ".claude/context" "$TARGET_DIR/.gitignore" 2>/dev/null; then
+                echo "" >> "$TARGET_DIR/.gitignore" 2>/dev/null || true
+                echo "# SKIIS 上下文文件（本地工作记录，不提交）" >> "$TARGET_DIR/.gitignore" 2>/dev/null || true
+                echo ".claude/context/" >> "$TARGET_DIR/.gitignore" 2>/dev/null || true
+                echo ".claude/context/*" >> "$TARGET_DIR/.gitignore" 2>/dev/null || true
+                ok "已自动将 .claude/context/ 加入 .gitignore"
+            fi
+        fi
+
+        # 自动设置 svn:ignore（SVN 项目）
+        if [ -d "$TARGET_DIR/.svn" ]; then
+            svn propset svn:ignore ".claude/context" "$TARGET_DIR/.claude/" 2>/dev/null || true
+            ok "已自动设置 svn:ignore"
+        fi
+
+        ok "上下文目录已初始化 ($CONTEXT_DIR)"
     else
-        echo -e "${GRAY}📂 docs/ai-context/ 已存在，保留用户数据${NC}"
+        echo -e "${GRAY}📂 上下文目录已存在，保留用户数据${NC}"
     fi
 fi
 

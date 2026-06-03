@@ -224,7 +224,8 @@ else {
 }
 
 # ============================================
-# 6. 初始化 docs/ai-context/（仅项目安装 + 首次）
+# 6. 初始化上下文目录（仅项目安装 + 首次）
+#    新路径：.claude/context/（防误提交），兼容旧路径 docs/ai-context/
 # ============================================
 Write-Host ""
 
@@ -232,10 +233,20 @@ if ($isGlobal) {
     Write-Host "📂 全局安装完成（仅命令和技能，项目级文件需在项目中单独初始化）" -ForegroundColor Gray
 }
 else {
-    $contextDir = "$targetDir\docs\ai-context"
+    # 优先新路径，兼容旧路径
+    if (Test-Path "$targetDir\docs\ai-context") {
+        $contextDir = "$targetDir\docs\ai-context"
+        Write-Host "📂 检测到旧路径 docs/ai-context/，继续使用" -ForegroundColor Gray
+    }
+    else {
+        $contextDir = "$targetDir\.claude\context"
+    }
+
     if (-not (Test-Path $contextDir)) {
         Write-Host "🔍 首次安装，初始化上下文目录..." -ForegroundColor Cyan
         New-Item -ItemType Directory -Force -Path $contextDir | Out-Null
+        New-Item -ItemType Directory -Force -Path "$contextDir\reference" | Out-Null
+        New-Item -ItemType Directory -Force -Path "$contextDir\tasks" | Out-Null
 
         Set-Content "$contextDir\current-task.md" -Value @"
 > 最后更新: $(Get-Date -Format 'yyyy-MM-dd HH:mm')
@@ -267,10 +278,27 @@ else {
 记录遇到的问题和解决方案，避免重复踩坑。
 "@ -Encoding UTF8
 
-        Write-Host "  ✅ docs/ai-context/ 已初始化" -ForegroundColor Green
+        # 自动加入 .gitignore
+        if (Test-Path "$targetDir\.git") {
+            $gitignore = "$targetDir\.gitignore"
+            $line = ".claude/context/"
+            if (-not (Test-Path $gitignore) -or -not ((Get-Content $gitignore -Raw) -match [regex]::Escape($line))) {
+                Add-Content $gitignore "`n# SKIIS 上下文文件（本地工作记录，不提交）"
+                Add-Content $gitignore $line
+                Write-Host "  ✅ 已自动将 .claude/context/ 加入 .gitignore" -ForegroundColor Green
+            }
+        }
+
+        # 自动设置 svn:ignore
+        if (Test-Path "$targetDir\.svn") {
+            svn propset svn:ignore ".claude/context" "$targetDir\.claude\" 2>$null
+            Write-Host "  ✅ 已自动设置 svn:ignore" -ForegroundColor Green
+        }
+
+        Write-Host "  ✅ 上下文目录已初始化 ($contextDir)" -ForegroundColor Green
     }
     else {
-        Write-Host "📂 docs/ai-context/ 已存在，保留用户数据" -ForegroundColor Gray
+        Write-Host "📂 上下文目录已存在，保留用户数据" -ForegroundColor Gray
     }
 }
 

@@ -26,7 +26,7 @@
 
 ## 关键约定
 
-- 所有上下文文件存储在 `docs/ai-context/` 下
+- 上下文文件存储在 `.claude/context/`（新）或 `docs/ai-context/`（旧，向后兼容）
 - `current-task.md` 覆盖更新，`decisions.md` 和 `pitfalls.md` 追加更新
 - 命令文件使用中文编写
 - 尽量让 AI 自驱动，减少用户手动操作

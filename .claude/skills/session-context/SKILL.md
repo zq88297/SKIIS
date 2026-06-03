@@ -9,6 +9,21 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
 
 ---
 
+## 上下文存储位置
+
+**默认路径：`.claude/context/`**（在项目 `.claude/` 目录下，通常已被 gitignore/svn:ignore）。
+
+**向后兼容：** 如果项目已有 `docs/ai-context/` 目录，优先用它。如果没有，就用 `.claude/context/`。
+
+**为什么不用 `docs/ai-context/`：**
+- `.claude/` 通常已在 `.gitignore` 中，不会误提交
+- 上下文文件是本地工作记录，不应该上传到代码仓库
+- 初始化时自动将 `.claude/context/` 加入 `.gitignore`（Git）或设置 `svn:ignore`（SVN）
+
+**以下文档中所有 `docs/ai-context/` 路径，实际操作时根据上述规则自动选择正确路径。**
+
+---
+
 ## 自动规则（全局生效，无需用户操作）
 
 ### 规则 0：智能加载（最高优先级）

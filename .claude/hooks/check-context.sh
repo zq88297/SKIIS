@@ -4,7 +4,12 @@
 # 由 .claude/hooks.json 中的 PreToolUse hook 触发
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
+# 优先新路径，兼容旧路径
+if [ -d "$PROJECT_DIR/docs/ai-context" ]; then
+    CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
+else
+    CONTEXT_DIR="$PROJECT_DIR/.claude/context"
+fi
 
 # 静默检查，只在首次发现缺失时输出
 MARKER_FILE="$PROJECT_DIR/.claude/hooks/.context_checked"
