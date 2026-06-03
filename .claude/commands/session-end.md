@@ -36,31 +36,44 @@ Based on the signals above, assign one of:
 
 Review the conversation from start to finish and produce:
 
-### a) Accomplishments
-List what was actually achieved, being specific:
-- Files created or modified (with paths)
-- Functions/classes written
-- Bugs fixed (with root cause if known)
-- Features implemented
-- Tests passing
+### a) 排查过程（最重要）
+如果本次会话涉及问题排查，详细记录排查路径：
+- 初始现象：看到什么异常
+- 排查步骤：先查了哪里 → 排除了什么 → 定位到哪个模块
+- 关键发现：每个排查步骤的结论（"不是 A 的问题"也是重要结论）
+- 最终根因：真正的 bug/问题是什么
 
-### b) Key decisions
-Technical choices made in this session:
-- What was chosen and why
-- What alternatives were explicitly rejected
+### b) 解决方案
+- 怎么修的（代码改动、配置调整、流程变更）
+- 为什么这么修（是否有替代方案）
+- 验证方式（怎么确认修好了）
 
-### c) Remaining issues
-Things that are not yet done:
-- Unfinished work items
-- Known bugs not yet fixed
-- Open questions that need answers
-- Items needing user confirmation or external input
+### c) 新增依赖 ⚠️ 重要
+**如果本次会话新增了依赖库、工具、SDK 等，必须记录：**
+| 依赖名 | 版本 | 用途 | 安装方式 |
+|--------|------|------|---------|
+| libssl | 3.0 | TLS 支持 | apt install libssl-dev |
+| ... | ... | ... | ... |
 
-### d) Next steps
-A clear, actionable starting point for the next session:
-- The very next thing to work on
-- Files to open first
-- Any prep work needed (dependencies to install, config to set)
+这一条对重建编译环境至关重要。没有它，换一台机器后编译必然失败。
+
+### d) 成果
+- 修改了哪些文件（不列举具体文件——通常较多）
+- Bug 修复（含根因）
+- 新增功能
+
+### e) 技术决策
+- 选择了什么，为什么
+- 明确拒绝了什么替代方案
+
+### f) 遗留问题
+- 未完成的工作
+- 已知但未修的 bug
+- 待确认的事项
+
+### g) 下一步
+- 第一个操作的具体步骤（文件 + 函数）
+- 需要预先安装的依赖
 
 ## Step 3: Review with the user
 
