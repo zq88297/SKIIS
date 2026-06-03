@@ -66,14 +66,12 @@ Review the conversation from start to finish and produce:
 - 选择了什么，为什么
 - 明确拒绝了什么替代方案
 
-### f) 遗留问题
-- 未完成的工作
-- 已知但未修的 bug
-- 待确认的事项
-
-### g) 下一步
+### f) 下一步
 - 第一个操作的具体步骤（文件 + 函数）
 - 需要预先安装的依赖
+- 待确认的事项（如有）
+
+> `/session-end` 意味着任务已收尾，不应有"遗留问题"。如有未完成的工作，就是下一步的起点。
 
 ## Step 3: Review with the user
 
