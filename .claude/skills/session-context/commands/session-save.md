@@ -70,7 +70,7 @@ next session won't know where to start. Write `## 🔜 下次继续` section:
 例如：等待运维确认 keepalive 间隔参数
 ```
 
-**要求：** 第一步必须具体到"打开 X 文件，定位到 Y 函数/行号，做 Z"。不是泛泛的"继续开发 XX 功能"。
+**要求：** 第一步必须具体到“打开 X 文件，定位到 Y 函数/行号，做 Z”。不是泛泛的“继续开发 XX 功能”。
 
 ### Technical decisions (for `decisions.md`)
 

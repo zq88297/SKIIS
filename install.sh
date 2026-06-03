@@ -16,12 +16,8 @@
 
 set -e
 
-# 管道检测（安全网）
-if [ ! -t 0 ]; then
-    echo "⚠️  不要使用 curl|bash 管道方式，请先 git clone 再运行。"
-    echo "  git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global"
-    exit 1
-fi
+# 注意：不要使用 curl|bash 管道方式，请先 git clone 再运行。
+# git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global
 
 # 颜色
 RED='\033[0;31m'
