@@ -44,12 +44,12 @@ git clone https://github.com/zq88297/SKIIS.git
 cp -r SKIIS/.cursor/rules/ 你的项目/.cursor/rules/
 
 # 初始化上下文目录（可选，也可以让 AI 自动初始化）
-mkdir -p 你的项目/docs/ai-context/
+mkdir -p 你的项目/.claude/context/
 ```
 
 安装后重启 Cursor，规则自动生效（支持自治规则 + 关键词触发，不需要斜杠命令）。
 
-> 不管用哪个 IDE，`docs/ai-context/` 上下文文件是通用的——在 Claude Code 里存的进度，Cursor 打开也能读。
+> 上下文文件存储在 `.claude/context/`，自动加入 `.gitignore`，不会误提交到代码仓库。
 
 **这就够了。** 之后在任何项目打开 Claude Code，输入 `/project:session-load` 即可。
 
@@ -114,20 +114,20 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 
 ```
 大型项目/
-├── docs/ai-context/               # 项目级
+├── .claude/context/               # 项目级（自动 gitignore）
 ├── 子系统/
-│   ├── docs/ai-context/           # 子系统级
+│   ├── .claude/context/           # 子系统级
 │   └── 子模块A/
-│       ├── docs/ai-context/       # 模块级
+│       ├── .claude/context/       # 模块级
 │       └── 子模块A1/
-│           └── docs/ai-context/   # 子模块级（任意深度）
+│           └── .claude/context/   # 子模块级（任意深度）
 ```
 
 任务可以在任意两层之间派发。
 
 ### 🚀 规则 5：新项目自动初始化
 
-检测到 `docs/ai-context/` 不存在时直接初始化：扫描项目结构、创建模板文件、安装 hooks、生成架构文档。全程自动，不需要确认。
+检测到 `.claude/context/` 不存在时直接初始化：扫描项目结构、创建模板文件、安装 hooks、生成架构文档。全程自动，不需要确认。
 
 ### 🪝 规则 6：Hooks 自动补装
 
@@ -156,7 +156,7 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
   ├─ 发现根因在项目 B
   ├─ 对 AI 说："给 B 派个排查任务"
   │
-  ├─ AI 自动在 B 生成 docs/ai-context/tasks/from-A-xxx.md
+  ├─ AI 自动在 B 生成 .claude/context/tasks/from-A-xxx.md
   │   包含：问题背景 / A→B 交互方式 / 排查清单 / 日志线索
   │
   ├─ A 的 current-task.md 记录："📤 已派发到 B"
@@ -191,11 +191,12 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 ## 上下文文件系统
 
 ```
-docs/ai-context/
+.claude/context/              ← 自动加入 .gitignore，不会误提交
 ├── current-task.md          # 任务进度（checkbox 跟踪）
 ├── decisions.md             # 技术决策（追加不覆盖）
 ├── pitfalls.md              # 踩坑记录（追加不覆盖）
 ├── architecture.md          # 项目架构（context-sync 生成）
+├── reference/               # 历史技术参考（协议格式、环境信息等）
 └── tasks/                   # 跨项目/跨模块排查任务
     ├── from-IPsec网关-0601.md  # 其他项目派来的任务
     └── done/                   # 已处理的归档
@@ -213,7 +214,7 @@ docs/ai-context/
 | `.claude/skills/session-context/` | 覆盖更新 |
 | `.claude/hooks.json` | 智能合并（已有则追加，已有 SKIIS 则跳过） |
 | `CLAUDE.md` | 智能追加（已有 SKIIS 引用则跳过） |
-| `docs/ai-context/` | 仅首次创建，绝不覆盖用户数据 |
+| `.claude/context/` | 仅首次创建，绝不覆盖用户数据。自动 gitignore |
 
 ---
 
