@@ -55,20 +55,42 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
 已完成 全部打勾 ✅ 且 进行中 为空 且 待完成 为空？
   │
   ├─ 是 → 项目处于"干净"状态
-  │      "✅ 上次的任务已全部完成。这是新任务，需要清空旧记录从头开始吗？"
-  │      用户确认 → 将 current-task.md 归档为 current-task-{日期}.md.bak
-  │                → 创建空白 current-task.md
-  │                → decisions.md / pitfalls.md 保留（历史决策仍有价值）
+  │      "✅ 上次的任务已全部完成。清空任务记录，开始新任务？"
+  │
+  │      用户确认后，**分类处理，不简单丢弃**：
+  │
+  │      ├─ 提取 "## 关键上下文" 段落
+  │      │     → 保存到 docs/ai-context/reference/context-{日期}.md
+  │      │       （协议格式、接口端点、调试环境、配置值——这些都是技术资产）
+  │      │
+  │      ├─ 提取任务中涉及的技术决策 → 追加到 decisions.md
+  │      ├─ 提取任务中遇到的踩坑 → 追加到 pitfalls.md
+  │      │
+  │      ├─ 清空 current-task.md（任务部分重置，关键上下文部分重置为空）
+  │      │
+  │      └─ 在新 current-task.md 的 "关键上下文" 部分引用已保存的文件：
+  │            "📚 历史参考：见 docs/ai-context/reference/"
   │
   └─ 否 → 有未完成任务，正常加载
 ```
 
+**清理后的目录结构：**
+```
+docs/ai-context/
+├── current-task.md           ← 新任务（干净）
+├── reference/                ← 永久保留的技术参考
+│   ├── context-2026-03-15.md ← 协议格式、API端点、调试环境...
+│   └── context-2026-06-01.md
+├── decisions.md              ← 历史决策（追加累积）
+└── pitfalls.md               ← 历史踩坑（追加累积）
+```
+
 **关键原则：**
-- 任务全完成 = 新起点，不应继续加载旧的任务记录
-- decisions.md 和 pitfalls.md 不清理——历史决策和踩坑对新任务仍有参考价值
+- 任务全完成 = 新起点，不应继续加载旧的任务清单
+- **但技术参考不能丢** — 协议格式、调试环境、API端点、配置值等是永久资产
+- decisions.md 和 pitfalls.md 不清理 — 历史决策和踩坑仍有价值
 - 简单项目 → 直接加载，立即回答
 - 复杂项目 → 先定位目标，再加载，再回答
-- **绝不在确定目标之前盲目加载上下文**
 
 #### 对话中途涉及新模块
 
