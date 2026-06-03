@@ -19,7 +19,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # 检查源文件是否完整（防止单独下载脚本运行导致找不到源文件）
-if (-not (Test-Path "$scriptDir\.claude\commands\project") -or -not (Test-Path "$scriptDir\.claude\skills\session-context")) {
+if (-not (Test-Path "$scriptDir\.claude\commands") -or -not (Test-Path "$scriptDir\.claude\skills\session-context")) {
     Write-Host "🔍 检测到脚本不在完整仓库中，正在自动克隆..." -ForegroundColor Yellow
     $tempRepo = "$env:TEMP\skiiis-repo-$PID"
     git clone --depth 1 https://github.com/zq88297/SKIIS.git $tempRepo 2>$null
@@ -57,18 +57,18 @@ Write-Host "安装目录: $targetDir"
 Write-Host ""
 
 # ============================================
-# 1. 复制命令文件 (.claude/commands/project/)
+# 1. 复制命令文件 (.claude/commands/)
 #    目录名 "project" 对应 /project:xxx 前缀
 # ============================================
 Write-Host "[1/6] 安装命令文件..." -ForegroundColor Yellow
 
-$commandsDir = "$targetDir\commands\project"
+$commandsDir = "$targetDir\commands"
 New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
 
-$sourceCommands = "$scriptDir\.claude\commands\project\"
+$sourceCommands = "$scriptDir\.claude\commands\"
 if (Test-Path $sourceCommands) {
     Copy-Item -Path "$sourceCommands*" -Destination $commandsDir -Force
-    Write-Host "  ✅ 5 个命令已安装 (/project:session-load 等)" -ForegroundColor Green
+    Write-Host "  ✅ 5 个命令已安装 (/session-load 等)" -ForegroundColor Green
 }
 else {
     Write-Host "  ⚠️  未找到命令源文件，请确认从完整仓库运行" -ForegroundColor Magenta
@@ -204,7 +204,7 @@ else {
 ## 上下文管理
 
 本项目使用 SKIIS 上下文管理系统（已全局安装）。可用命令：
-`/project:session-load` `/project:session-save` `/project:session-end` `/project:context-check` `/project:context-sync`
+`/session-load` `/session-save` `/session-end` `/context-check` `/context-sync`
 '@
 
     if (Test-Path $claudeFile) {
@@ -323,8 +323,8 @@ else {
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "已安装:" -ForegroundColor White
-Write-Host "  ✅ /project:session-load, session-save, session-end"
-Write-Host "  ✅ /project:context-check, context-sync"
+Write-Host "  ✅ /session-load, session-save, session-end"
+Write-Host "  ✅ /context-check, context-sync"
 if (-not $isGlobal) {
     Write-Host "  ✅ hooks.json (智能合并)"
     Write-Host "  ✅ hooks 脚本"
@@ -340,6 +340,6 @@ if ($isGlobal) {
 }
 else {
     Write-Host "重启 Claude Code，输入:" -ForegroundColor White
-    Write-Host "  /project:session-load" -ForegroundColor Cyan
+    Write-Host "  /session-load" -ForegroundColor Cyan
 }
 Write-Host ""

@@ -13,13 +13,13 @@ case "$WRITTEN_FILE" in
     *package.json|*pyproject.toml|*Cargo.toml|*go.mod)
         echo ""
         echo "📦 SKIIS: 检测到依赖配置文件变更"
-        echo "   建议运行 /project:context-sync --deps 更新依赖信息"
+        echo "   建议运行 /context-sync --deps 更新依赖信息"
         echo ""
         ;;
     *tsconfig.json|*vite.config.*|*next.config.*|*webpack.config.*)
         echo ""
         echo "🔧 SKIIS: 检测到构建配置变更"
-        echo "   建议运行 /project:context-sync 同步架构文档"
+        echo "   建议运行 /context-sync 同步架构文档"
         echo ""
         ;;
 esac

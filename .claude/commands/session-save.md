@@ -123,5 +123,5 @@ Summarize what was saved:
 | decisions.md | +N new | Decision YYYY-MM-DD-N: <summary> |
 | pitfalls.md | +N new | <problem summary> |
 
-💡 Next session, run /project:session-load to restore.
+💡 Next session, run /session-load to restore.
 ```

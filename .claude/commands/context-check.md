@@ -120,11 +120,11 @@ Overall: 🟢 Low
 💡 Recommendations
 [Based on the findings, give 1-3 specific, actionable recommendations]
 
-• If token pressure is high: Run /project:session-save now as a checkpoint,
-  then consider /project:session-end.
-• If external memory is stale: Run /project:session-save to sync.
+• If token pressure is high: Run /session-save now as a checkpoint,
+  then consider /session-end.
+• If external memory is stale: Run /session-save to sync.
 • If hallucination risk is elevated: This is a strong signal to end the
-  session and start fresh with /project:session-load.
+  session and start fresh with /session-load.
 • If all clear: Keep working — context is healthy.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -120,8 +120,8 @@ find . -maxdepth 3 -type f \
 
 ## 上下文管理规范
 
-1. 每次新对话开始时，运行 /project:session-load 加载上下文
-2. 项目结构发生较大变化时，运行 /project:context-sync 同步架构文档
+1. 每次新对话开始时，运行 /session-load 加载上下文
+2. 项目结构发生较大变化时，运行 /context-sync 同步架构文档
 3. 对话超过 20 轮时，主动提醒保存上下文
 4. 重要决策做出后，记录到 docs/ai-context/decisions.md
 ```
@@ -201,7 +201,7 @@ src/
 ```markdown
 # 项目概述
 
-> 此文件由 /project:context-sync 自动生成
+> 此文件由 /context-sync 自动生成
 > 最后更新：{日期}
 
 ## 基本信息
@@ -236,7 +236,7 @@ src/
 - [ ] 确定项目目录结构
 - [ ] 确定核心依赖
 - [ ] 编写 CLAUDE.md 详细约定
-- [ ] 首次运行 /project:context-sync 同步架构
+- [ ] 首次运行 /context-sync 同步架构
 ```
 
 ---
@@ -330,7 +330,7 @@ src/
 ```markdown
 # 项目概述
 
-> 此文件由 /project:context-sync 自动生成，请勿手动修改。
+> 此文件由 /context-sync 自动生成，请勿手动修改。
 > 最后更新：{当前日期时间}
 
 ## 基本信息
@@ -471,8 +471,8 @@ src/
 - 依赖数：23 个运行时 / 15 个开发
 
 ⏭️ 可选下一步
-- 运行 /project:context-check 检查整体上下文健康度
-- 运行 /project:session-save 保存当前任务状态
+- 运行 /context-check 检查整体上下文健康度
+- 运行 /session-save 保存当前任务状态
 ```
 
 ---
@@ -481,19 +481,19 @@ src/
 
 ```bash
 # 全量同步（推荐）
-/project:context-sync
+/context-sync
 
 # 只同步依赖变化（比如刚装了新包）
-/project:context-sync --deps
+/context-sync --deps
 
 # 只同步目录结构
-/project:context-sync --structure
+/context-sync --structure
 
 # 快速同步
-/project:context-sync --quick
+/context-sync --quick
 
 # 强制重新生成
-/project:context-sync --force
+/context-sync --force
 ```
 
 ## 自动触发建议
@@ -503,7 +503,7 @@ src/
 ```markdown
 ## 自动提醒规则
 
-在以下时机，主动提醒用户运行 /project:context-sync：
+在以下时机，主动提醒用户运行 /context-sync：
 - 新增或删除了顶层目录
 - 安装或卸载了核心依赖
 - 切换了技术方案（如状态管理、样式框架）

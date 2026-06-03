@@ -9,7 +9,7 @@
 SKIIS 是一套 Claude Code 全局技能，解决 AI 辅助编程中最头疼的问题：
 
 - **会话长了变笨** → 自动预警，提醒保存后开新会话
-- **换会话丢上下文** → `/project:session-load` 一键恢复
+- **换会话丢上下文** → `/session-load` 一键恢复
 - **新项目无从下手** → 自动扫描结构、初始化上下文
 - **排查跨模块问题** → 自动给下游项目生成排查任务，带完整输入条件
 - **大型项目加载慢** → 分层上下文，子目录只加载自己的部分
@@ -51,7 +51,7 @@ mkdir -p 你的项目/.claude/context/
 
 > 上下文文件存储在 `.claude/context/`，自动加入 `.gitignore`，不会误提交到代码仓库。
 
-**这就够了。** 之后在任何项目打开 Claude Code，输入 `/project:session-load` 即可。
+**这就够了。** 之后在任何项目打开 Claude Code，输入 `/session-load` 即可。
 
 ### 更新
 
@@ -65,12 +65,12 @@ cd ~/SKIIS && git pull && bash install.sh --global
 
 | 命令 | 用途 |
 | ---- | ---- |
-| `/project:session-load` | 加载上下文 / 新项目自动初始化 |
-| `/project:session-save` | 保存当前进度（含具体下一步） |
-| `/project:session-end` | 结束会话（健康检查 + 保存） |
-| `/project:context-check` | 上下文健康度诊断 |
-| `/project:context-sync` | 同步项目架构文档 |
-| `/project:task-send <路径>` | 向目标项目/模块派发排查任务 |
+| `/session-load` | 加载上下文 / 新项目自动初始化 |
+| `/session-save` | 保存当前进度（含具体下一步） |
+| `/session-end` | 结束会话（健康检查 + 保存） |
+| `/context-check` | 上下文健康度诊断 |
+| `/context-sync` | 同步项目架构文档 |
+| `/task-send <路径>` | 向目标项目/模块派发排查任务 |
 | `/task:plan` | 分析任务依赖，生成并行/串行执行计划 |
 | `/task:run` | 启动并行会话执行异步任务 |
 
@@ -80,7 +80,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 
 ### 📋 规则 1：启动自动加载
 
-新对话中 `/project:session-load` 自动恢复任务进度、决策记录、踩坑预警。
+新对话中 `/session-load` 自动恢复任务进度、决策记录、踩坑预警。
 
 ### 🔍 规则 2：架构变化自动提醒
 
@@ -106,7 +106,7 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 
 排查 A 项目发现问题在 B 项目时，自动给 B 生成排查任务。包含：问题背景、交互方式、排查清单、已知线索。下次 B 项目的会话打开就能看到完整输入条件。
 
-**触发方式**：直接说"给 B 派个排查任务"、"/project:task-send /path/to/B"，或 AI 检测到跨项目关联时主动询问。
+**触发方式**：直接说"给 B 派个排查任务"、"/task-send /path/to/B"，或 AI 检测到跨项目关联时主动询问。
 
 ### 📦 规则 4.8：分层上下文（大型多模块项目，支持任意深度嵌套）
 
@@ -140,12 +140,12 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 ### 日常开发
 
 ```
-打开项目 → /project:session-load → 看到上次的进度 → 继续工作
+打开项目 → /session-load → 看到上次的进度 → 继续工作
                                              │
                               改 bug → AI 提醒："记录到 pitfalls？"
                               做决策 → AI 提醒："追加到 decisions？"
                               15 轮了 → AI 提醒："该保存了"
-                              下班了 → /project:session-end → 一键收尾
+                              下班了 → /session-end → 一键收尾
 ```
 
 ### 跨项目排查
@@ -162,7 +162,7 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
   ├─ A 的 current-task.md 记录："📤 已派发到 B"
   │
   ▼
-打开项目 B → /project:session-load
+打开项目 B → /session-load
   │
   ├─ 优先展示："📨 来自「项目A」的排查任务"
   ├─ B 的 AI 知道：为什么查、查什么、怎么交互
@@ -174,12 +174,12 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 ### 大型多模块项目
 
 ```
-首次进根目录 → /project:session-load
+首次进根目录 → /session-load
   ├─ 扫描出 8 个子模块
   ├─ 为每个子模块创建独立上下文
   └─ 生成项目全景架构文档
 
-之后进子模块A/ → /project:session-load
+之后进子模块A/ → /session-load
   └─ 秒级加载，只看 A 的任务和决策
 
 排查时发现是子模块C的问题
@@ -210,7 +210,7 @@ AI 生成修改计划时，自动转为 `current-task.md` 的 checkbox 清单，
 
 | 文件 | 策略 |
 | ---- | ---- |
-| `.claude/commands/project/*.md` | 覆盖更新 |
+| `.claude/commands/*.md` | 覆盖更新 |
 | `.claude/skills/session-context/` | 覆盖更新 |
 | `.claude/hooks.json` | 智能合并（已有则追加，已有 SKIIS 则跳过） |
 | `CLAUDE.md` | 智能追加（已有 SKIIS 引用则跳过） |
@@ -260,7 +260,7 @@ AI 自动读取上次的上下文，展示：
 当你排查项目 A 时发现可能是项目 B 的问题：
 
 ```bash
-/project:task-send /path/to/project-B
+/task-send /path/to/project-B
 ```
 
 AI 自动给 B 生成排查任务，包含：

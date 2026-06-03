@@ -109,7 +109,7 @@ After user confirmation:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💡 To resume: /project:session-load
+💡 To resume: /session-load
 
 👋 See you next time!
 ```

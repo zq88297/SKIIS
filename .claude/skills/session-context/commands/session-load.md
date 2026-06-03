@@ -104,6 +104,6 @@ If none of the context files exist, **do NOT ask — directly execute**:
    - `pitfalls.md` — empty pitfalls log
 5. If `CLAUDE.md` doesn't exist, create a minimal one with project name and basic conventions
 6. **Auto-install hooks**: if `.claude/hooks.json` doesn't exist, create it along with `.claude/hooks/check-context.sh` and `.claude/hooks/on-file-change.sh`. Use the exact content from SKILL.md's "Hooks 配置" section.
-7. If project has source code, auto-run `/project:context-sync` to generate `architecture.md`
+7. If project has source code, auto-run `/context-sync` to generate `architecture.md`
 8. Report what was created
 9. Ask: "准备就绪，请告诉我需要做什么？"

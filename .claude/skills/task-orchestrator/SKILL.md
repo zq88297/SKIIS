@@ -199,7 +199,7 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **合并阶段（当前主会话执行，一次性）：**
 
-当 `/task:plan` 或 `/project:session-load` 检测到 `tasks/results/` 下有未合并的结果文件时：
+当 `/task:plan` 或 `/session-load` 检测到 `tasks/results/` 下有未合并的结果文件时：
 
 1. 读取所有 `.result.md` 文件
 2. 更新 `current-task.md`：已完成移至 Completed，新增 Pending

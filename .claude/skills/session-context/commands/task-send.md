@@ -5,9 +5,9 @@
 ## 参数
 
 `$ARGUMENTS` 为目标路径（必填）：
-- 绝对路径：`/project:task-send /home/user/projects/ike-module`
-- 相对路径：`/project:task-send ../ike-module`
-- 子模块名：`/project:task-send ike-module`（在当前项目下查找）
+- 绝对路径：`/task-send /home/user/projects/ike-module`
+- 相对路径：`/task-send ../ike-module`
+- 子模块名：`/task-send ike-module`（在当前项目下查找）
 
 ## 执行步骤
 
@@ -96,5 +96,5 @@
 📥 目标：{目标项目}
 📄 任务文件：docs/ai-context/tasks/from-{来源}-{日期}.md
 
-目标项目下次 /project:session-load 时将优先展示此任务。
+目标项目下次 /session-load 时将优先展示此任务。
 ```

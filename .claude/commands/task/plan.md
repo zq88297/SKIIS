@@ -81,7 +81,7 @@
   第 1 组的 3 个任务可以立即并行启动：
   - 在当前会话继续 Task-2
   - 新开会话执行 Task-4：claude -p "给日志模块添加 DEBUG 级别..."
-  - 新开会话排查跨模块任务：打开 ike-key-exchange 项目，/project:session-load
+  - 新开会话排查跨模块任务：打开 ike-key-exchange 项目，/session-load
 
   需要 /task:run 帮你启动并行会话吗？
 ```

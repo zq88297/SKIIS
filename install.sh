@@ -56,7 +56,7 @@ done
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 检查源文件是否完整（防止单独下载脚本运行导致找不到源文件）
-if [ ! -d "$SCRIPT_DIR/.claude/commands/project" ] || [ ! -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
+if [ ! -d "$SCRIPT_DIR/.claude/commands" ] || [ ! -d "$SCRIPT_DIR/.claude/skills/session-context" ]; then
     echo -e "${YELLOW}🔍 检测到脚本不在完整仓库中，正在自动克隆...${NC}"
     TEMP_REPO="/tmp/skiis-repo-$$"
     git clone --depth 1 https://github.com/zq88297/SKIIS.git "$TEMP_REPO" 2>/dev/null || {
@@ -88,15 +88,16 @@ echo "安装目录: $TARGET_DIR"
 echo ""
 
 # ============================================
-# 1. 安装命令文件 (.claude/commands/project/)
+# 1. 安装命令文件 (.claude/commands/)
 # ============================================
 section "1/5" "安装命令文件..."
 
-mkdir -p "$TARGET_DIR/commands/project"
+mkdir -p "$TARGET_DIR/commands/task"
 
-if [ -d "$SCRIPT_DIR/.claude/commands/project" ]; then
-    cp -f "$SCRIPT_DIR/.claude/commands/project/"*.md "$TARGET_DIR/commands/project/" 2>/dev/null || true
-    ok "5 个命令已安装 (/project:session-load 等)"
+if [ -d "$SCRIPT_DIR/.claude/commands" ]; then
+    cp -f "$SCRIPT_DIR/.claude/commands/"*.md "$TARGET_DIR/commands/" 2>/dev/null || true
+    cp -f "$SCRIPT_DIR/.claude/commands/task/"*.md "$TARGET_DIR/commands/task/" 2>/dev/null || true
+    ok "命令已安装 (/session-load, /context-sync, /task-send, /task:plan, /task:run 等)"
 else
     warn "未找到命令源文件，请确认从完整仓库运行"
 fi
@@ -233,7 +234,7 @@ else
 ## 上下文管理
 
 本项目使用 SKIIS 上下文管理系统（已全局安装）。可用命令：
-`/project:session-load` `/project:session-save` `/project:session-end` `/project:context-check` `/project:context-sync`
+`/session-load` `/session-save` `/session-end` `/context-check` `/context-sync`
 '
 
     if [ -f "$CLAUDE_FILE" ]; then
@@ -345,8 +346,8 @@ fi
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "已安装:"
-echo "  ✅ /project:session-load, session-save, session-end"
-echo "  ✅ /project:context-check, context-sync"
+echo "  ✅ /session-load, session-save, session-end"
+echo "  ✅ /context-check, context-sync"
 if ! $IS_GLOBAL; then
     echo "  ✅ hooks.json (智能合并)"
     echo "  ✅ hooks 脚本"
@@ -361,6 +362,6 @@ if $IS_GLOBAL; then
     echo -e "   ./install.sh .    （安装项目级 hooks、CLAUDE.md、上下文目录）"
 else
     echo "重启 Claude Code，输入:"
-    echo -e "  ${CYAN}/project:session-load${NC}"
+    echo -e "  ${CYAN}/session-load${NC}"
 fi
 echo ""

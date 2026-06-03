@@ -115,7 +115,7 @@ docs/ai-context/
 
 ### 规则 1：启动时自动加载上下文
 
-此项已被规则 0 替代。`/project:session-load` 命令仅作为手动补充手段。
+此项已被规则 0 替代。`/session-load` 命令仅作为手动补充手段。
 
 ### 规则 2：架构变化时自动提醒
 
@@ -123,20 +123,20 @@ docs/ai-context/
 
 | 触发条件 | 提醒内容 |
 |---------|---------|
-| 新增或删除顶层目录 | "检测到项目结构变化，是否需要运行 `/project:context-sync` 更新架构文档？" |
-| 安装了新的核心依赖 | "检测到新依赖加入，是否需要运行 `/project:context-sync --deps` 更新依赖信息？" |
+| 新增或删除顶层目录 | "检测到项目结构变化，是否需要运行 `/context-sync` 更新架构文档？" |
+| 安装了新的核心依赖 | "检测到新依赖加入，是否需要运行 `/context-sync --deps` 更新依赖信息？" |
 | 切换了技术方案 | "检测到技术方案变更，是否需要记录到 `docs/ai-context/decisions.md`？" |
 
 ### 规则 3：对话疲劳自动预警
 
 - 对话超过 **15 轮**时，主动提醒：
-  > 当前对话已进行约 N 轮。建议运行 `/project:session-save` 保存进度，超过 25 轮建议开新会话。
+  > 当前对话已进行约 N 轮。建议运行 `/session-save` 保存进度，超过 25 轮建议开新会话。
 
 - 当发现自身出现以下情况时立即警告：
   - 前后回复存在矛盾
   - 对变量名、文件路径不确定
   - 开始重复之前的建议
-  > ⚠️ 检测到上下文可能不完整。建议 `/project:session-save` 后开新会话。
+  > ⚠️ 检测到上下文可能不完整。建议 `/session-save` 后开新会话。
 
 ### 规则 4：工作产出自动归档提示
 
@@ -165,7 +165,7 @@ docs/ai-context/
 - [ ] 编写单元测试
 ```
 
-无需用户手动运行 `/project:session-save`，计划自动归档。
+无需用户手动运行 `/session-save`，计划自动归档。
 ### 规则 4.6：编译环境和工具安装自动归档
 
 当项目涉及编译/构建环境，且需要安装工具链或依赖应用时：
@@ -206,11 +206,11 @@ docs/ai-context/
 
 | 触发方式 | 精度 | 说明 |
 |---------|------|------|
-| `/project:task-send <路径>` | 🟢 精确 | **推荐。** 直接指定目标路径，跳过 AI 猜测 |
+| `/task-send <路径>` | 🟢 精确 | **推荐。** 直接指定目标路径，跳过 AI 猜测 |
 | 自然语言 | 🟡 模糊 | "给 B 派个任务"，AI 需要推断目标路径 |
 | AI 主动检测 | 🟡 模糊 | AI 发现跨项目关联时主动询问 |
 
-**推荐使用命令 `/project:task-send` 而不是自然语言**，确保目标路径准确无误。
+**推荐使用命令 `/task-send` 而不是自然语言**，确保目标路径准确无误。
 
 **触发后自动执行：**
 
@@ -247,7 +247,7 @@ docs/ai-context/
 
 **在项目 B 的会话中（被派发方）：**
 
-当 `/project:session-load` 检测到 `docs/ai-context/tasks/` 下有未处理文件，在摘要中**优先展示**：
+当 `/session-load` 检测到 `docs/ai-context/tasks/` 下有未处理文件，在摘要中**优先展示**：
 
 ```
 📨 来自其他项目的排查任务（N 个待处理）
@@ -283,7 +283,7 @@ docs/ai-context/
   │     └─ 排查清单
   │
   ▼
-打开 B/子系统/子模块B2 → /project:session-load
+打开 B/子系统/子模块B2 → /session-load
   └─ 优先展示：📨 来自「程序A/子系统/子模块A1」的排查任务
 ```
 
@@ -293,7 +293,7 @@ docs/ai-context/
 1. Write 任务文件到 B 的 `docs/ai-context/tasks/`（写完不管）
 2. 在 A 自己的 `current-task.md` 追加一行：`📤 已派发到 B — from-A-xxx.md`
 
-之后 A 正常继续自己的工作。需要知道进度时，`/project:session-load` 自动检查 B 的 `tasks/done/`，是"等待中"还是"已解决"。**A 和 B 各自维护各自的上下文，互不干扰。**
+之后 A 正常继续自己的工作。需要知道进度时，`/session-load` 自动检查 B 的 `tasks/done/`，是"等待中"还是"已解决"。**A 和 B 各自维护各自的上下文，互不干扰。**
 
 **如果 A 直接帮 B 排查（不开 B 的会话）：**
 
@@ -368,7 +368,7 @@ docs/ai-context/
 **初始化流程（根目录，只做一次）：**
 
 ```
-/project:session-load（根目录，首次）
+/session-load（根目录，首次）
   │
   ├─ 完整扫描所有子目录，生成 architecture.md（含子模块清单）
   ├─ 询问："检测到以下子模块：A/B/C...，是否为它们也创建独立上下文？"
@@ -396,7 +396,7 @@ docs/ai-context/
 │   └── 子模块B/
 ```
 
-每层独立运作。在哪层跑 `/project:session-load` 就加载哪层的上下文。任务可以在任意两层之间派发（根→最深子模块，同级子模块互发）。
+每层独立运作。在哪层跑 `/session-load` 就加载哪层的上下文。任务可以在任意两层之间派发（根→最深子模块，同级子模块互发）。
 
 **首次 vs 后续加载（根目录）：**
 
@@ -422,10 +422,10 @@ docs/ai-context/
 
 | 场景 | 操作 | 耗时 | 加载内容 |
 |------|------|------|---------|
-| 根目录（非首次） | `/project:session-load` | 1-2 秒 | architecture.md 清单 + 目录 diff + 全局 decisions |
-| 子目录 A | `/project:session-load` | 秒级 | A 的 current-task + decisions + pitfalls |
-| A/A1（更深） | `/project:session-load` | 秒级 | A1 的上下文 |
-| 要更新全量架构 | `/project:context-sync` | 10-30 秒 | 主动触发完整重扫 |
+| 根目录（非首次） | `/session-load` | 1-2 秒 | architecture.md 清单 + 目录 diff + 全局 decisions |
+| 子目录 A | `/session-load` | 秒级 | A 的 current-task + decisions + pitfalls |
+| A/A1（更深） | `/session-load` | 秒级 | A1 的上下文 |
+| 要更新全量架构 | `/context-sync` | 10-30 秒 | 主动触发完整重扫 |
 
 **子目录 CLAUDE.md 模板（极简版）：**
 
@@ -441,7 +441,7 @@ docs/ai-context/
 
 **子模块增删自动检测：**
 
-每次在根目录运行 `/project:session-load` 或 `/project:context-sync` 时，对比当前目录结构和 `architecture.md` 中缓存的子模块清单：
+每次在根目录运行 `/session-load` 或 `/context-sync` 时，对比当前目录结构和 `architecture.md` 中缓存的子模块清单：
 
 | 检测到的情况 | 自动处理 |
 |-------------|---------|
@@ -463,7 +463,7 @@ docs/ai-context/
 5. **自动安装 hooks**：检查 `.claude/hooks.json` 是否存在，如果不存在则自动创建：
    - 写入 [hooks.json](#hooks-配置) 配置
    - 写入 `.claude/hooks/check-context.sh` 和 `on-file-change.sh` 脚本
-6. 如果项目有源码，自动运行 `/project:context-sync` 生成 `architecture.md`
+6. 如果项目有源码，自动运行 `/context-sync` 生成 `architecture.md`
 7. 报告初始化结果
 
 ### 规则 6：hooks 自动补装
@@ -523,7 +523,7 @@ SVN 的每个分支是物理目录副本。**上下文直接在当前工作目�
 **SVN 规则：**
 1. 上下文放在 `$(pwd)/docs/ai-context/`，只在当前目录
 2. 不向上/横向扫描其他分支
-3. 跨分支任务 → `/project:task-send ../branches/feature-A`
+3. 跨分支任务 → `/task-send ../branches/feature-A`
 
 #### Git 项目（分支共享工作目录）
 
@@ -560,7 +560,7 @@ Git 的所有分支共享同一个工作目录，需要用分支名隔离上下�
 **自动初始化的智能判断：**
 
 ```
-/project:session-load
+/session-load
   │
   ├─ 检测到 .git/ 存在 → Git 项目
   │     └─ git rev-parse --abbrev-ref HEAD → "feature-A"
@@ -596,18 +596,18 @@ AI（规则 0 自动执行）：
 | `docs/ai-context/pitfalls.md` | 踩坑记录 | **追加** |
 | `docs/ai-context/architecture.md` | 项目架构 | context-sync 生成 |
 
-**并发写入安全：** 多会话并行时，每个任务写入独立的 `tasks/results/{task-id}.result.md`，互不冲突。主会话在 `/project:session-load` 时一次性合并所有结果到共享文件。详见 task-orchestrator 技能。
+**并发写入安全：** 多会话并行时，每个任务写入独立的 `tasks/results/{task-id}.result.md`，互不冲突。主会话在 `/session-load` 时一次性合并所有结果到共享文件。详见 task-orchestrator 技能。
 
 ---
 
 ## 命令参考
 
-- `/project:session-load` → 加载上下文 / 新项目初始化
-- `/project:session-save` → 保存进度
-- `/project:session-end` → 结束会话（健康检查 + 保存）
-- `/project:context-check` → 上下文健康诊断
-- `/project:context-sync` → 同步项目架构文档
-- `/project:task-send <路径>` → 向目标项目/模块派发排查任务（精确模式）
+- `/session-load` → 加载上下文 / 新项目初始化
+- `/session-save` → 保存进度
+- `/session-end` → 结束会话（健康检查 + 保存）
+- `/context-check` → 上下文健康诊断
+- `/context-sync` → 同步项目架构文档
+- `/task-send <路径>` → 向目标项目/模块派发排查任务（精确模式）
 
 当用户调用这些命令时，读取 `commands/` 目录下对应的 `.md` 文件获取详细执行流程。
 
@@ -650,7 +650,7 @@ MARKER_FILE="$PROJECT_DIR/.claude/hooks/.context_checked"
 if [ ! -d "$CONTEXT_DIR" ] && [ ! -f "$MARKER_FILE" ]; then
     echo ""
     echo "🔍 SKIIS: 项目尚未初始化上下文管理系统"
-    echo "   建议运行 /project:session-load 自动初始化"
+    echo "   建议运行 /session-load 自动初始化"
     echo ""
     touch "$MARKER_FILE" 2>/dev/null || true
 fi
@@ -667,13 +667,13 @@ case "$WRITTEN_FILE" in
     *package.json|*pyproject.toml|*Cargo.toml|*go.mod)
         echo ""
         echo "📦 SKIIS: 检测到依赖配置文件变更"
-        echo "   建议运行 /project:context-sync --deps 更新依赖信息"
+        echo "   建议运行 /context-sync --deps 更新依赖信息"
         echo ""
         ;;
     *tsconfig.json|*vite.config.*|*next.config.*|*webpack.config.*)
         echo ""
         echo "🔧 SKIIS: 检测到构建配置变更"
-        echo "   建议运行 /project:context-sync 同步架构文档"
+        echo "   建议运行 /context-sync 同步架构文档"
         echo ""
         ;;
 esac

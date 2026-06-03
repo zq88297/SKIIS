@@ -13,15 +13,15 @@
 ```
 .claude/
 ├── commands/
-│   └── context-sync.md          # /project:context-sync  同步架构文档
+│   └── context-sync.md          # /context-sync  同步架构文档
 └── skills/
     └── session-context/
         ├── SKILL.md              # 技能主文件
         └── commands/
-            ├── session-load.md   # /project:session-load   加载上下文
-            ├── session-save.md   # /project:session-save   保存上下文
-            ├── session-end.md    # /project:session-end    结束会话
-            └── context-check.md  # /project:context-check  健康检查
+            ├── session-load.md   # /session-load   加载上下文
+            ├── session-save.md   # /session-save   保存上下文
+            ├── session-end.md    # /session-end    结束会话
+            └── context-check.md  # /context-check  健康检查
 ```
 
 ## 关键约定
@@ -53,8 +53,8 @@
 
 | 命令 | 功能 |
 |------|------|
-| `/project:session-load` | 加载已保存的上下文 |
-| `/project:session-save` | 保存当前进度 |
-| `/project:session-end` | 结束会话（健康检查 + 保存） |
-| `/project:context-check` | 上下文健康度诊断 |
-| `/project:context-sync` | 同步项目架构文档 |
+| `/session-load` | 加载已保存的上下文 |
+| `/session-save` | 保存当前进度 |
+| `/session-end` | 结束会话（健康检查 + 保存） |
+| `/context-check` | 上下文健康度诊断 |
+| `/context-sync` | 同步项目架构文档 |

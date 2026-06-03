@@ -17,7 +17,7 @@ MARKER_FILE="$PROJECT_DIR/.claude/hooks/.context_checked"
 if [ ! -d "$CONTEXT_DIR" ] && [ ! -f "$MARKER_FILE" ]; then
     echo ""
     echo "🔍 SKIIS: 项目尚未初始化上下文管理系统"
-    echo "   建议运行 /project:context-sync 自动初始化"
+    echo "   建议运行 /context-sync 自动初始化"
     echo ""
     touch "$MARKER_FILE" 2>/dev/null || true
 fi
