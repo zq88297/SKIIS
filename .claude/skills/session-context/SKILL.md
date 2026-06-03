@@ -47,11 +47,28 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
   └─ 其他子模块的上下文，不碰。
 ```
 
+**加载后检查：任务是否已全部完成？**
+
+读取 `current-task.md` 后，检查状态：
+
+```
+已完成 全部打勾 ✅ 且 进行中 为空 且 待完成 为空？
+  │
+  ├─ 是 → 项目处于"干净"状态
+  │      "✅ 上次的任务已全部完成。这是新任务，需要清空旧记录从头开始吗？"
+  │      用户确认 → 将 current-task.md 归档为 current-task-{日期}.md.bak
+  │                → 创建空白 current-task.md
+  │                → decisions.md / pitfalls.md 保留（历史决策仍有价值）
+  │
+  └─ 否 → 有未完成任务，正常加载
+```
+
 **关键原则：**
+- 任务全完成 = 新起点，不应继续加载旧的任务记录
+- decisions.md 和 pitfalls.md 不清理——历史决策和踩坑对新任务仍有参考价值
 - 简单项目 → 直接加载，立即回答
 - 复杂项目 → 先定位目标，再加载，再回答
 - **绝不在确定目标之前盲目加载上下文**
-- 多分支时宁可多问一句，不错加载整个分支树
 
 #### 对话中途涉及新模块
 
