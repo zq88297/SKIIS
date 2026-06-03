@@ -21,7 +21,7 @@ Check for the existence of each of these files and note their status:
 
 Read the files that exist, in this order (most critical first):
 
-1. **tasks/*.md** — Cross-project tasks (check FIRST — they explain WHY we're investigating)
+1. **tasks/*.md** — Cross-project tasks from other projects (check FIRST — these explain WHY we're here)
 2. **CLAUDE.md** — Project identity, conventions, build commands
 3. **current-task.md** — Where we left off
 4. **decisions.md** — What was decided and why
@@ -59,6 +59,12 @@ Format the recovered context clearly:
 [From current-task.md's "下次继续" section — display FIRST]
   • 第一步：打开 xxx 文件，定位到 yyy 函数，做 zzz
   • 当前状态：{编译/运行状态}
+
+📂 **关键文件清单**
+[From current-task.md's "关键文件清单" section — LOAD FIRST]
+  • 直接打开清单中列出的文件（已指定行号范围）
+  • 跳过"已排除"的文件 — 不需要重新探索
+  • 读"当前排查结论" — 秒懂问题状态
   • 阻塞项：{如有}
 
 📋 Pending:
