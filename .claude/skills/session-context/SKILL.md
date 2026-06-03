@@ -416,6 +416,38 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
 
 当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时，在 session-load 时检测并询问，用户确认后写入。
 
+### 规则 6.5：上下文文件瘦身（防止负载膨胀）
+
+`decisions.md` 和 `pitfalls.md` 持续追加会越来越长，load 时占用越来越多上下文。
+
+**瘦身规则：**
+
+| 条件 | 操作 |
+|------|------|
+| 文件超过 200 行 | 下次 load 时提示："上下文文件已积累较多记录，是否归档旧条目？" |
+| 条目超过 6 个月 | 自动移到 `decisions-archive.md` / `pitfalls-archive.md` |
+| 用户说"归档" | 手动触发归档 |
+
+**load 时的读取策略（减少上下文占用）：**
+
+| 文件 | 读取方式 | 原因 |
+|------|---------|------|
+| `current-task.md` | 完整读取 | 覆盖更新，不会膨胀 |
+| `decisions.md` | 只读最近 **10 条** | 旧决策基本不会再查 |
+| `pitfalls.md` | 只读最近 **10 条** | 旧踩坑已内化为共识 |
+| `architecture.md` | 完整读取 | 不会频繁更新，大小稳定 |
+
+读取时如果文件很大，用 `tail -50` 取末尾而不是读全文。
+
+**归档后的结构：**
+```
+docs/ai-context/
+├── decisions.md              ← 最近 10 条（load 时只读这个）
+├── decisions-archive.md      ← 历史决策（需要时可手动查阅）
+├── pitfalls.md               ← 最近 10 条
+└── pitfalls-archive.md       ← 历史踩坑
+```
+
 ### 规则 7：分支上下文隔离（支持 SVN 和 Git）
 
 **上下文跟随分支，互不干扰。**
