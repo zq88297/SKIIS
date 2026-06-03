@@ -23,7 +23,12 @@ SKIIS 是一套 Claude Code 全局技能，解决 AI 辅助编程中最头疼的
 ### Claude Code（全局安装，一次所有项目生效）
 
 ```bash
+# GitHub（国外用户）
 git clone https://github.com/zq88297/SKIIS.git
+
+# Gitee（国内用户，更快）
+git clone https://gitee.com/zhang-baishui/skills.git
+
 cd SKIIS
 
 # macOS / Linux
@@ -33,12 +38,13 @@ bash install.sh --global
 .\install.ps1 -Global
 ```
 
-安装后重启 Claude Code，skill 自动触发（支持 skill + 斜杠命令 `/project:xxx` + hooks）。
+安装后重启 Claude Code，skill 自动触发（支持 skill + 斜杠命令 + hooks）。
 
 ### Cursor IDE（复制规则文件到项目）
 
 ```bash
-git clone https://github.com/zq88297/SKIIS.git
+# GitHub: git clone https://github.com/zq88297/SKIIS.git
+# Gitee:  git clone https://gitee.com/zhang-baishui/skills.git
 
 # 把 Cursor 规则复制到你的项目
 cp -r SKIIS/.cursor/rules/ 你的项目/.cursor/rules/
