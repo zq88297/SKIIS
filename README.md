@@ -79,6 +79,9 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | `/task-send <路径>` | 向目标项目/模块派发排查任务 |
 | `/task:plan` | 分析任务依赖，生成并行/串行执行计划 |
 | `/task:run` | 启动并行会话执行异步任务 |
+| `/workflow:start` | 启动项目管理流程（需求→方案→代码→测试→验收） |
+| `/workflow:status` | 查看当前项目工作流进度 |
+| `/workflow:review` | 项目收尾复盘，一致性检查 + 数据整理 |
 
 ---
 

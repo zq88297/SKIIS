@@ -126,6 +126,14 @@ if [ -d "$SCRIPT_DIR/.claude/skills/task-orchestrator" ]; then
     ok "task-orchestrator 技能已安装"
 fi
 
+# project-workflow
+PW_DIR="$TARGET_DIR/skills/project-workflow"
+mkdir -p "$PW_DIR/commands"
+if [ -d "$SCRIPT_DIR/.claude/skills/project-workflow" ]; then
+    cp -rf "$SCRIPT_DIR/.claude/skills/project-workflow/"* "$PW_DIR/" 2>/dev/null || true
+    ok "project-workflow 技能已安装"
+fi
+
 # ============================================
 # 3. hooks.json（仅项目安装）
 # ============================================
