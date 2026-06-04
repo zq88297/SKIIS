@@ -352,6 +352,19 @@ cp -r SKIIS/.cursor/rules/ 你的项目/.cursor/rules/
 "继续"、"保存进度"、"同步架构"、"给 B 派个任务"、"并行执行"
 ```
 
+### CodeX
+
+CodeX 插件暂无现成文件，但可以用 `SKILL-DESIGN.md` 自动生成：
+
+```bash
+# 1. 将设计文档发给 CodeX
+# 2. 让 CodeX 按自己的格式生成等价的 skill
+"读取 SKILL-DESIGN.md，理解这个上下文管理系统的完整设计，
+然后用 CodeX 支持的格式重新生成等价的 skill 文件。"
+```
+
+`SKILL-DESIGN.md` 包含了：核心目标、三层架构、7 个上下文文件格式、全部规则的触发条件和执行逻辑、跨项目任务派发、并行调度、分支隔离等完整设计。
+
 ---
 
 ## 系统要求
