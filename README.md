@@ -73,7 +73,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | ---- | ---- |
 | `/session-load` | 加载上下文 / 新项目自动初始化 |
 | `/session-save` | 保存当前进度（含具体下一步） |
-| `/session-end` | 结束会话（健康检查 + 保存） |
+| `/session-end` | 收尾：排查过程、新增依赖、部署方法、下一步 |
 | `/context-check` | 上下文健康度诊断 |
 | `/context-sync` | 同步项目架构文档 |
 | `/task-send <路径>` | 向目标项目/模块派发排查任务 |
