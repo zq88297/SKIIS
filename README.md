@@ -82,6 +82,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 | `/workflow:start` | 启动项目管理流程（需求→方案→代码→测试→验收） |
 | `/workflow:status` | 查看当前项目工作流进度 |
 | `/workflow:review` | 项目收尾复盘，一致性检查 + 数据整理 |
+| 自然语言 | "启动项目管理流程"、"查看项目进度"、"项目复盘" |
 
 ---
 
