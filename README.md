@@ -310,6 +310,50 @@ AI 会诊断 token 用量、回复质量、是否该开新会话。
 
 ---
 
+## IDE 使用示例
+
+### Claude Code
+
+```bash
+# 1. 全局安装（一次）
+git clone https://github.com/zq88297/SKIIS.git && cd SKIIS && bash install.sh --global
+
+# 2. 打开任何项目，开始对话
+$ claude
+> 帮我排查 IKE 协商超时的问题
+
+# AI 自动加载上下文，判断项目结构，定位相关模块
+# 排查过程中发现涉及 key-exchange 模块
+> 给 ../key-exchange 派个排查任务
+# AI 自动在 key-exchange 生成任务文件
+
+# 做到一半下班了
+> 保存进度
+# AI 写入 current-task.md（含继续计划、关键文件清单、新增依赖）
+
+# 第二天继续
+$ claude
+> 继续
+# AI 读取 🔜 下次继续，直接打开对应文件和行号
+```
+
+### Cursor
+
+```bash
+# 1. 复制规则文件到项目（一次）
+git clone https://github.com/zq88297/SKIIS.git
+cp -r SKIIS/.cursor/rules/ 你的项目/.cursor/rules/
+
+# 2. 打开 Cursor，正常使用
+# 说 "排查 IPsec 隧道协商超时"
+# AI 自动：扫描项目 → 定位模块 → 确认分支 → 开始工作
+
+# 3. 规则触发词（无需斜杠命令）
+"继续"、"保存进度"、"同步架构"、"给 B 派个任务"、"并行执行"
+```
+
+---
+
 ## 系统要求
 
 - Claude Code（最新版）
