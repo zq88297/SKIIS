@@ -1,4 +1,4 @@
-# SKIIS 安装脚本 (Windows PowerShell)
+﻿# SKIIS 安装脚本 (Windows PowerShell)
 # 用法（需先 git clone 仓库）:
 #   git clone https://github.com/zq88297/SKIIS.git; cd SKIIS
 #
@@ -106,6 +106,15 @@ if (Test-Path $sourceOrch) {
     Write-Host "  ✅ task-orchestrator 技能已安装" -ForegroundColor Green
 }
 
+# project-workflow
+$wfDir = "$targetDir\skills\project-workflow"
+New-Item -ItemType Directory -Force -Path $wfDir | Out-Null
+$sourceWf = "$scriptDir\.claude\skills\project-workflow\"
+if (Test-Path $sourceWf) {
+    Copy-Item -Path "$sourceWf*" -Destination $wfDir -Recurse -Force
+    Write-Host "  ✅ project-workflow 技能已安装" -ForegroundColor Green
+}
+
 # ============================================
 # 3. hooks.json（仅项目安装）
 # ============================================
@@ -124,13 +133,13 @@ else {
             "PostToolUse" = @(
                 @{
                     "matcher" = "Write|Edit"
-                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh`"
+                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh"
                 }
             )
             "PreToolUse" = @(
                 @{
                     "matcher" = "Bash"
-                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh`"
+                    "command" = "bash `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh"
                 }
             )
         }
