@@ -229,20 +229,39 @@ alwaysApply: true
 
 **PDF 文档解析规则：**
 
-当 `.bugs/` 目录中发现 `.pdf` 文件时，自动提取文本内容：
+当 `.bugs/` 目录中发现 `.pdf` 文件时，按以下优先级解析：
+
+```text
+发现 PDF 文件
+  │
+  ├─ 检查 /pdf skill 是否已安装
+  │     │
+  │     ├─ 已安装 → 调用 /pdf skill 解析（效果最好，支持表格、图片 OCR 等）
+  │     │
+  │     └─ 未安装
+  │           │
+  │           ├─ Claude Code 环境 → 提示用户：
+  │           │     "检测到 PDF Bug 文档，建议安装 /pdf skill 以获得最佳解析效果。
+  │           │      是否安装？"
+  │           │     ├─ 用户确认 → 指导安装后使用 /pdf
+  │           │     └─ 用户跳过 → 降级到系统工具解析
+  │           │
+  │           └─ Cursor 环境 → 直接使用系统工具解析（Cursor 不支持 skill 安装）
+  │
+  └─ 系统工具降级解析（按优先级）：
+        1. pdftotext（Poppler，纯文本提取，速度快）
+        2. Python pdfplumber（表格和复杂布局效果好）
+        3. Python PyPDF2（纯文本提取）
+        4. 以上都不可用 → 提示用户安装：pip install pdfplumber 或 apt install poppler-utils
+```
+
+**系统工具解析命令：**
 
 | 解析方式 | 命令 | 说明 |
 | --- | --- | --- |
 | 首选 | `pdftotext {file} .bugs/extracted/{name}.txt` | Poppler 工具，纯文本提取 |
 | 备选 | `python3 -c "import pdfplumber; ..."` | Python 库，表格解析更好 |
 | 备选 | `python3 -c "import PyPDF2; ..."` | Python 库，纯文本提取 |
-
-**解析策略：**
-
-1. 优先使用 `pdftotext`（系统工具，速度快）
-2. 不可用时尝试 Python `pdfplumber`（表格和复杂布局效果好）
-3. 再不可用时尝试 Python `PyPDF2`（纯文本提取）
-4. 以上都不可用 → 提示用户安装：`pip install pdfplumber` 或 `apt install poppler-utils`
 
 **PDF 中的图片处理：**
 
