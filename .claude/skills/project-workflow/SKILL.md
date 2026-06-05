@@ -1,6 +1,6 @@
 ---
 name: project-workflow
-description: "Project lifecycle management — 需求分析→方案设计→代码实现→测试→验收. Trigger on: 新项目, 项目管理, 开发流程, project workflow, requirements, 需求分析, 方案设计, 验收."
+description: "Project lifecycle management — 需求分析→方案设计→代码实现→测试→验收. Trigger on: 新项目, 新功能, 新模块, 新需求, 新增, 添加, 做一个, 实现一个, 开发一个, 项目管理, 开发流程, project workflow, requirements, 需求分析, 方案设计, 验收, 帮我做, 帮我写, 帮我开发, 帮我实现, 从头开始, 从零开始, 我要做, 我想做, 我需要."
 ---
 
 # 项目管理流程

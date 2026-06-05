@@ -1,6 +1,6 @@
 ---
 name: task-orchestrator
-description: "Auto-analyze multi-step plans for parallel execution. Trigger when AI generates 2+ step plans, or on /task:plan, /task:run, parallel, 并行, 同时执行."
+description: "Auto-analyze multi-step plans for parallel execution. Trigger when AI generates 2+ step plans, or on /task:plan, /task:run, parallel, 并行, 同时执行, 多任务, 批量, 一起做, 一起改, 分步."
 ---
 
 # Task Orchestrator

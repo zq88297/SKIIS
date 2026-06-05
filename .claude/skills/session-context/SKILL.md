@@ -1,6 +1,6 @@
 ﻿---
 name: session-context
-description: "MUST trigger on EVERY conversation in a dev project. Auto-loads context (task progress, decisions, pitfalls). Trigger on: any code-related request (修改, 排查, debug, fix, change, investigate, generate, create, how to, 帮我), /project:session-*, 保存上下文, 加载上下文, 继续工作."
+description: "MUST trigger on EVERY conversation in a dev project. Auto-loads context (task progress, decisions, pitfalls). Trigger on: any code-related request (修改, 排查, debug, fix, change, investigate, generate, create, how to, 帮我, 实现, 开发, 优化, 重构, 测试, 部署, 编译, 运行, 报错, 失败, 问题), /project:session-*, 保存上下文, 加载上下文, 继续工作, 任何对话的第一句话."
 ---
 
 # Session Context Management
