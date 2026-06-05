@@ -33,6 +33,14 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
 ```
 用户提问
   │
+  ├─ 步骤 0：用户提到 bug/修复/fix/debug/问题/报错？
+  │     │
+  │     ├─ 是 → 立即执行 ls .bugs/（不要先读其他文件）
+  │     │     ├─ .bugs/ 有文件 → 直接开始处理（解压/解析/修复）
+  │     │     └─ .bugs/ 为空 → 走正常流程，告诉用户放入 Bug 文件
+  │     │
+  │     └─ 否 → 继续步骤 1
+  │
   ├─ 步骤 1：快速判断项目类型（仅 ls 顶层目录，1 秒）
   │
   ├─ 项目是简单结构？
@@ -60,22 +68,6 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
   │           └─ 步骤 4：加载目标上下文 → 回答用户
   │
   └─ 其他子模块的上下文，不碰。
-```
-
-**加载后检查：`.bugs/` 目录是否有待处理的 Bug？**
-
-```
-加载上下文后，检查项目根目录是否存在 .bugs/ 目录且有文件
-  │
-  ├─ 是 → 立即告知用户：
-  │     "📂 检测到 .bugs/ 目录中有 N 个待处理的 Bug 文件：
-  │       {列出文件名}
-  │      是否开始修复？"
-  │
-  │     用户确认后 → 自动开始解压、解析、修复流程
-  │     （按 project-workflow 的 Bug 修复流程执行）
-  │
-  └─ 否 → 继续正常流程
 ```
 
 **加载后检查：任务是否已全部完成？**
