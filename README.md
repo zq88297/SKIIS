@@ -136,7 +136,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
 
 ## 使用示例
 
-### 日常开发
+### 日常开发 — session-context
 
 ```
 打开项目 → 说句话 → 自动加载上下文 → 开始工作
@@ -146,7 +146,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
                    └─ 新项目 → 自动初始化（扫描结构 + 创建模板 + 安装 hooks）
 ```
 
-### 保存与恢复
+### 保存与恢复 — session-context
 
 ```
 下班前: "保存进度"
@@ -156,7 +156,7 @@ cd ~/SKIIS && git pull && bash install.sh --global
   → AI 读取上下文，展示 🔜 继续点，直接定位到文件和行号
 ```
 
-### 多任务并行
+### 多任务并行 — task-orchestrator
 
 ```
 AI: "这个计划有 3 个任务可以并行，要启动吗？"
@@ -165,7 +165,7 @@ AI: "这个计划有 3 个任务可以并行，要启动吗？"
   → 完成后主会话自动合并结果
 ```
 
-### 跨项目排查
+### 跨项目排查 — session-context + task-orchestrator
 
 ```
 项目 A 排查中 → 发现根因在项目 B
@@ -174,6 +174,17 @@ AI: "这个计划有 3 个任务可以并行，要启动吗？"
 
 打开项目 B → /session-load
   → 优先展示来自 A 的排查任务
+```
+
+### 项目全流程管理 — project-workflow
+
+```
+新项目启动 → /workflow:start
+  → 需求分析 → 方案设计 → 代码实现 → 测试 → 验收
+  → 每阶段有明确产出，状态自动保存到 workflow-state.md
+
+中途查看进度 → /workflow:status
+项目收尾 → /workflow:review（一致性检查 + 数据整理）
 ```
 
 ---
