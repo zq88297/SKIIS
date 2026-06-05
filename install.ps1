@@ -15,6 +15,12 @@ param(
     [switch]$Global
 )
 
+# 兼容 bash 风格 --Global 参数（PowerShell 只认 -Global）
+if ($Target -eq "--Global" -or $Target -eq "--global") {
+    $Global = $true
+    $Target = "."
+}
+
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
