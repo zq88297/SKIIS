@@ -165,13 +165,14 @@ description: "Project lifecycle management — 需求分析→方案设计→代
 
 进入 Bug 修复阶段时，自动在项目根目录创建 `.bugs/` 目录，并提示用户：
 
-> "请将 Bug 报告（zip/rar/7z 压缩包或 txt/md 文件）放入 `.bugs/` 目录，放好后告诉我'开始修 bug'。"
+> "请将 Bug 报告（zip/rar/7z 压缩包、txt/md 文件或 PDF 文档）放入 `.bugs/` 目录，放好后告诉我'开始修 bug'。"
 
 ```
 项目根目录/
 └── .bugs/                  ← 自动创建
     ├── bug-report-0601.zip ← 用户放入的 Bug 压缩包
     ├── bug-list.md         ← 或直接放 Bug 清单文件
+    ├── bug-report.pdf      ← 或 PDF 格式的 Bug 文档
     └── ...
 ```
 
@@ -184,6 +185,9 @@ description: "Project lifecycle management — 需求分析→方案设计→代
   │     │
   │     ├─ 发现压缩包（.zip/.rar/.7z）→ 自动解压到 .bugs/extracted/
   │     │     解压后删除压缩包，保留解压内容
+  │     │
+  │     ├─ 发现 PDF 文件 → 自动解析提取文本内容
+  │     │     解析后生成 .bugs/extracted/{原文件名}.txt
   │     │
   │     ├─ 发现文本文件（.txt/.md/.csv）→ 直接读取
   │     │
@@ -221,6 +225,43 @@ description: "Project lifecycle management — 需求分析→方案设计→代
 | 不支持的格式 | 提示用户手动解压后放入 `.bugs/` |
 
 解压后自动识别 Bug 清单文件（优先级：`bug-list.md` > `bugs.txt` > `README.md` > `*.md` > `*.txt`）。
+
+**PDF 文档解析规则：**
+
+当 `.bugs/` 目录中发现 `.pdf` 文件时，自动提取文本内容：
+
+| 解析方式 | 命令 | 说明 |
+|---------|------|------|
+| 首选 | `pdftotext {file} .bugs/extracted/{name}.txt` | Poppler 工具，纯文本提取 |
+| 备选 | `python3 -c "import pdfplumber; ..."` | Python 库，表格解析更好 |
+| 备选 | `python3 -c "import PyPDF2; ..."` | Python 库，纯文本提取 |
+
+**解析策略：**
+1. 优先使用 `pdftotext`（系统工具，速度快）
+2. 不可用时尝试 Python `pdfplumber`（表格和复杂布局效果好）
+3. 再不可用时尝试 Python `PyPDF2`（纯文本提取）
+4. 以上都不可用 → 提示用户安装：`pip install pdfplumber` 或 `apt install poppler-utils`
+
+**PDF 中的图片处理：**
+- 部分模型不支持图片解析，因此 PDF 中的截图**不直接用于 Bug 分析**
+- 如果 PDF 中包含 Bug 截图，AI 会：
+  1. 识别截图位置并记录：`[截图: 第X页, 第N张图]`
+  2. 基于截图周围的文字描述理解 Bug
+  3. 如文字描述不足以定位问题，提示用户："PDF 第 X 页有截图但我无法解析图片，请用文字描述截图中的问题"
+
+**PDF 解析后的输出格式：**
+
+解析后的文本保存到 `.bugs/extracted/{原文件名}.txt`，保持原始结构：
+```
+Bug #1: 登录页面样式错乱
+描述: 登录按钮在移动端显示不完整
+复现步骤: 1. 打开移动端浏览器 2. 访问登录页
+期望: 按钮完整显示
+实际: 按钮被截断
+严重程度: 中
+
+Bug #2: ...
+```
 
 **Bug 清单格式兼容：**
 
