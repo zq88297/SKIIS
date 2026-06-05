@@ -1,4 +1,4 @@
-# 任务并行执行
+﻿# 任务并行执行
 
 你是任务执行器。根据 `/task:plan` 生成的计划，为可并行任务启动独立的 Claude Code 会话。
 
@@ -14,7 +14,7 @@
 
 对每个要执行的任务，**先检查认领锁**：
 
-1. 检查 `docs/ai-context/tasks/claims/{task-id}.claim` 是否存在
+1. 检查 `.claude/context/tasks/claims/{task-id}.claim` 是否存在
 2. 不存在 → 创建 claim 文件：
    ```
    任务: {标题}
@@ -29,7 +29,7 @@
 
 为每个要并行执行的任务，生成一个**自包含的任务描述文件**。
 
-保存到 `docs/ai-context/tasks/async/` 目录（不和其他任务混淆）：
+保存到 `.claude/context/tasks/async/` 目录（不和其他任务混淆）：
 
 ```markdown
 # 异步任务：{任务标题}
@@ -53,33 +53,33 @@
 
 ## 完成后
 1. 将本文件移到 `../async-done/`
-2. 在来源项目的 `docs/ai-context/current-task.md` 中更新状态
+2. 在来源项目的 `.claude/context/current-task.md` 中更新状态
 ```
 
 ## Step 4：按并发限制启动会话
 
 **最多同时 3 个并行会话。** 按执行计划的分组顺序启动：
 
-1. 计数当前活跃的 claim 文件（`docs/ai-context/tasks/claims/*.claim`，排除 `done/`）
+1. 计数当前活跃的 claim 文件（`.claude/context/tasks/claims/*.claim`，排除 `done/`）
 2. 活跃数 < 3 → 启动下一组中依赖已满足的任务
-3. 活跃数 = 3 → 剩余任务排队，写入 `docs/ai-context/tasks/queue/`
+3. 活跃数 = 3 → 剩余任务排队，写入 `.claude/context/tasks/queue/`
 
 启动命令（后台自动执行）：
 ```bash
 # 注意：prompt 中需包含"完成后自动接续"的指令
-claude -p "你的任务是执行 docs/ai-context/tasks/async/{task-file}.md。
+claude -p "你的任务是执行 .claude/context/tasks/async/{task-file}.md。
 完成后：
 1. 将结果写入任务文件末尾
 2. 将任务文件移到 async-done/
 3. 将 claim 移到 claims/done/
-4. 检查 docs/ai-context/tasks/queue/ 是否有排队任务
+4. 检查 .claude/context/tasks/queue/ 是否有排队任务
 5. 如果有且依赖已满足，自动开始执行
 6. 如果有但依赖未满足，告知用户等待哪个任务"
 ```
 
 ## Step 5：排队和接续
 
-剩余任务写入 `docs/ai-context/tasks/queue/`：
+剩余任务写入 `.claude/context/tasks/queue/`：
 
 ```markdown
 # 排队任务：{任务标题}
@@ -138,3 +138,4 @@ gnome-terminal -- bash -c "cd {dir} && claude; exec bash"
 1. 从 `async-done/` 读取完成结果
 2. 更新 `current-task.md` 的 Completed 和 Pending
 3. 如果当前任务也完成了，检查是否可以启动下一组任务
+

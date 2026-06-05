@@ -1,4 +1,4 @@
-# 任务执行计划
+﻿# 任务执行计划
 
 你是任务调度器。分析当前项目的所有待办任务，生成依赖图和并行执行计划。
 
@@ -6,8 +6,8 @@
 
 读取以下来源的所有待完成任务：
 
-1. `docs/ai-context/current-task.md` — Pending 和 In Progress 列表
-2. `docs/ai-context/tasks/*.md` — 跨模块任务（排除 `done/` 目录下的）
+1. `.claude/context/current-task.md` — Pending 和 In Progress 列表
+2. `.claude/context/tasks/*.md` — 跨模块任务（排除 `done/` 目录下的）
 3. 当前会话中用户提到的待办事项
 
 ## Step 2：分析依赖
@@ -85,3 +85,4 @@
 
   需要 /task:run 帮你启动并行会话吗？
 ```
+

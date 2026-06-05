@@ -1,4 +1,4 @@
-# SKIIS 技能设计文档
+﻿# SKIIS 技能设计文档
 
 > 将此文档交给 CodeX，让它为你生成对应格式的 skill。
 
@@ -35,7 +35,7 @@
 
 ## 3. 上下文文件系统（核心）
 
-所有上下文存储在项目根目录的 `docs/ai-context/` 下，这是**纯 markdown 文件**，可被任何 AI 工具读取。
+所有上下文存储在项目根目录的 `.claude/context/` 下，这是**纯 markdown 文件**，可被任何 AI 工具读取。
 
 | 文件 | 用途 | 更新方式 |
 |------|------|---------|
@@ -128,7 +128,7 @@
 用户提问
   │
   ├─ 项目简单（无子模块目录）？
-  │   ├─ docs/ai-context/ 存在 → 读取 current-task.md + decisions + pitfalls
+  │   ├─ .claude/context/ 存在 → 读取 current-task.md + decisions + pitfalls
   │   │     ├─ 有 "🔜 下次继续" 段落 → 优先展示
   │   │     └─ 无 → 展示任务概览
   │   └─ 不存在 → 自动初始化（扫描项目结构，创建所有模板文件）
@@ -144,9 +144,9 @@
 
 ### 规则 1：新项目自动初始化
 
-`docs/ai-context/` 不存在时 → 不等用户确认，直接执行：
+`.claude/context/` 不存在时 → 不等用户确认，直接执行：
 1. ls 顶层目录，识别项目类型（C/Python/Go/前端）
-2. 创建 `docs/ai-context/` + 模板文件
+2. 创建 `.claude/context/` + 模板文件
 3. 如果项目有源码，扫描生成 `architecture.md`
 4. 安装 hooks（检测文件变化的脚本）
 
@@ -175,8 +175,8 @@
 
 ### 规则 5：SVN/Git 分支隔离
 
-- **SVN**：上下文在 `$(pwd)/docs/ai-context/`，只在当前工作目录
-- **Git**：上下文在 `docs/ai-context/{分支名}/`，用 `git rev-parse --abbrev-ref HEAD` 获取分支名
+- **SVN**：上下文在 `$(pwd)/.claude/context/`，只在当前工作目录
+- **Git**：上下文在 `.claude/context/{分支名}/`，用 `git rev-parse --abbrev-ref HEAD` 获取分支名
 - 切换分支自动切换上下文
 - 首次进入新分支自动初始化
 
@@ -192,8 +192,8 @@
 A 的会话中：
   ├─ 用户说："给 B 派个排查任务"
   ├─ AI 提取当前上下文（问题背景、A→B 交互方式、关键接口、已知线索）
-  ├─ B 的 docs/ai-context/ 不存在 → 自动初始化
-  ├─ 在 B 中生成 docs/ai-context/tasks/from-A-{日期}.md
+  ├─ B 的 .claude/context/ 不存在 → 自动初始化
+  ├─ 在 B 中生成 .claude/context/tasks/from-A-{日期}.md
   └─ 在 A 的 current-task.md 记录：📤 已派发到 B
 
 B 的会话中（下次打开时）：
@@ -235,11 +235,11 @@ B 的会话中（下次打开时）：
 
 ```
 大型项目/
-├── docs/ai-context/               # 项目级（模块清单 + 全局概览）
+├── .claude/context/               # 项目级（模块清单 + 全局概览）
 ├── 子模块A/
-│   └── docs/ai-context/           # 模块级（A 的职责、接口、任务）
+│   └── .claude/context/           # 模块级（A 的职责、接口、任务）
 └── 子模块B/
-    └── docs/ai-context/           # 模块级（B 的职责、接口、任务）
+    └── .claude/context/           # 模块级（B 的职责、接口、任务）
 ```
 
 - 在哪层打开就在哪层加载，互不干扰
@@ -252,7 +252,7 @@ B 的会话中（下次打开时）：
 ## 8. 数据结构总结
 
 ```
-docs/ai-context/
+.claude/context/
 ├── current-task.md          ← 覆盖更新，含 checkbox + 下次继续
 ├── decisions.md             ← 追加，格式：D{日期}-{序号}: {标题}
 ├── pitfalls.md              ← 追加，格式：P{日期}-{序号}: {标题}
@@ -281,3 +281,4 @@ docs/ai-context/
 | 先理解问题再加载上下文 | 大型项目不盲目全量扫描 |
 | 分支隔离（Git 用子目录，SVN 用物理目录） | 上下文跟分支走，互不干扰 |
 | 认领锁而非全局调度器 | 简单可靠，文件系统天然适合 |
+

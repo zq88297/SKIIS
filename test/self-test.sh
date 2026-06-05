@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # SKIIS 自测试 — 模拟真实使用场景
 # 用法: bash test/self-test.sh
 
@@ -55,7 +55,7 @@ git config user.email "test@test.com" 2>/dev/null || true
 git config user.name "Test" 2>/dev/null || true
 
 # 模拟 AI 的规则 0：检查并初始化
-info "  模拟规则 0：检查 docs/ai-context/ 和 .claude/context/"
+info "  模拟规则 0：检查 .claude/context/ 和 .claude/context/"
 
 if [ ! -d ".claude/context" ] && [ ! -d "docs/ai-context" ]; then
     # 规则 5：自动初始化
@@ -358,3 +358,4 @@ echo "  通过: $PASS / 失败: $FAIL"
 echo "======================================"
 
 [ $FAIL -gt 0 ] && exit 1 || exit 0
+

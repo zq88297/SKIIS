@@ -17,8 +17,8 @@ alwaysApply: true
 
 1. 确认目标项目 B 的路径
 2. 自动提取当前上下文：问题背景、A→B 交互方式、关键接口、已知线索
-3. 如果 B 的 `docs/ai-context/` 不存在 → 自动初始化
-4. 在 B 中生成任务文件 `docs/ai-context/tasks/from-A-{date}-{summary}.md`：
+3. 如果 B 的 `.claude/context/` 不存在 → 自动初始化
+4. 在 B 中生成任务文件 `.claude/context/tasks/from-A-{date}-{summary}.md`：
 
 ```markdown
 # 来自「{项目A}」的排查任务
@@ -45,7 +45,7 @@ alwaysApply: true
 
 ## 接收流程（在目标项目 B 中）
 
-当打开项目 B 时，优先检查 `docs/ai-context/tasks/` 下的未处理任务并展示。
+当打开项目 B 时，优先检查 `.claude/context/tasks/` 下的未处理任务并展示。
 
 ## A 直接排查 B 的情况
 

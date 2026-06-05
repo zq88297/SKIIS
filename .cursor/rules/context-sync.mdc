@@ -6,7 +6,7 @@ alwaysApply: false
 
 # 项目架构自动同步
 
-当项目配置文件或目录结构发生变化时，自动更新 `docs/ai-context/architecture.md`。
+当项目配置文件或目录结构发生变化时，自动更新 `.claude/context/architecture.md`。
 
 ## 触发条件
 
@@ -71,9 +71,9 @@ alwaysApply: false
 大型多模块项目使用分层上下文（支持任意深度嵌套）：
 
 ```
-项目根/docs/ai-context/         # 项目级（全局概览）
-子系统/docs/ai-context/          # 子系统级
-子模块/docs/ai-context/          # 模块级
+项目根/.claude/context/         # 项目级（全局概览）
+子系统/.claude/context/          # 子系统级
+子模块/.claude/context/          # 模块级
 ```
 
 每层独立运作，在哪层打开 Cursor 就用哪层的上下文。首次根目录加载时全量扫描，后续只做快速 diff（1-2 秒）。

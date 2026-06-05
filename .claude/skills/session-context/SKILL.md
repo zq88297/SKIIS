@@ -13,14 +13,14 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
 
 **默认路径：`.claude/context/`**（在项目 `.claude/` 目录下，通常已被 gitignore/svn:ignore）。
 
-**向后兼容：** 如果项目已有 `docs/ai-context/` 目录，优先用它。如果没有，就用 `.claude/context/`。
+**向后兼容：** 如果项目已有 `.claude/context/` 目录，优先用它。如果没有，就用 `.claude/context/`。
 
-**为什么不用 `docs/ai-context/`：**
+**为什么不用 `.claude/context/`：**
 - `.claude/` 通常已在 `.gitignore` 中，不会误提交
 - 上下文文件是本地工作记录，不应该上传到代码仓库
 - 初始化时自动将 `.claude/context/` 加入 `.gitignore`（Git）或设置 `svn:ignore`（SVN）
 
-**以下文档中所有 `docs/ai-context/` 路径，实际操作时根据上述规则自动选择正确路径。**
+**以下文档中所有 `.claude/context/` 路径，实际操作时根据上述规则自动选择正确路径。**
 
 ---
 
@@ -37,7 +37,7 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
   │
   ├─ 项目是简单结构？
   │     ├─ 是（根目录直接就是源码，无子模块目录）
-  │     │     └─ 直接加载当前目录的 docs/ai-context/
+  │     │     └─ 直接加载当前目录的 .claude/context/
   │     │        ├─ 有 → 读上下文 → 回答用户
   │     │        └─ 无 → 初始化 → 回答用户
   │     │
@@ -75,7 +75,7 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
   │      用户确认后，**分类处理，不简单丢弃**：
   │
   │      ├─ 提取 "## 关键上下文" 段落
-  │      │     → 保存到 docs/ai-context/reference/context-{日期}.md
+  │      │     → 保存到 .claude/context/reference/context-{日期}.md
   │      │       （协议格式、接口端点、调试环境、配置值——这些都是技术资产）
   │      │
   │      ├─ 提取任务中涉及的技术决策 → 追加到 decisions.md
@@ -84,14 +84,14 @@ description: "MUST trigger on EVERY conversation in a dev project. Auto-loads co
   │      ├─ 清空 current-task.md（任务部分重置，关键上下文部分重置为空）
   │      │
   │      └─ 在新 current-task.md 的 "关键上下文" 部分引用已保存的文件：
-  │            "📚 历史参考：见 docs/ai-context/reference/"
+  │            "📚 历史参考：见 .claude/context/reference/"
   │
   └─ 否 → 有未完成任务，正常加载
 ```
 
 **清理后的目录结构：**
 ```
-docs/ai-context/
+.claude/context/
 ├── current-task.md           ← 新任务（干净）
 ├── reference/                ← 永久保留的技术参考
 │   ├── context-2026-03-15.md ← 协议格式、API端点、调试环境...
@@ -125,7 +125,7 @@ docs/ai-context/
 |---------|---------|
 | 新增或删除顶层目录 | "检测到项目结构变化，是否需要运行 `/context-sync` 更新架构文档？" |
 | 安装了新的核心依赖 | "检测到新依赖加入，是否需要运行 `/context-sync --deps` 更新依赖信息？" |
-| 切换了技术方案 | "检测到技术方案变更，是否需要记录到 `docs/ai-context/decisions.md`？" |
+| 切换了技术方案 | "检测到技术方案变更，是否需要记录到 `.claude/context/decisions.md`？" |
 
 ### 规则 3：上下文健康自诊断（自动触发，无需用户操作）
 
@@ -311,8 +311,8 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 **触发后自动执行：**
 
 1. 确认项目 B 的路径（询问用户）
-2. 在项目 B 中创建 `docs/ai-context/tasks/` 目录（如不存在）
-3. 生成任务文件 `docs/ai-context/tasks/from-A-{date}-{summary}.md`：
+2. 在项目 B 中创建 `.claude/context/tasks/` 目录（如不存在）
+3. 生成任务文件 `.claude/context/tasks/from-A-{date}-{summary}.md`：
 
 ```markdown
 # 来自「{项目A名称}」的排查任务
@@ -339,11 +339,11 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 ```
 
 4. 在项目 A 的 `current-task.md` 中记录：
-   > 📤 已派发任务到「{项目B}」→ `docs/ai-context/tasks/from-A-xxx.md`
+   > 📤 已派发任务到「{项目B}」→ `.claude/context/tasks/from-A-xxx.md`
 
 **在项目 B 的会话中（被派发方）：**
 
-当 `/session-load` 检测到 `docs/ai-context/tasks/` 下有未处理文件，在摘要中**优先展示**：
+当 `/session-load` 检测到 `.claude/context/tasks/` 下有未处理文件，在摘要中**优先展示**：
 
 ```
 📨 来自其他项目的排查任务（N 个待处理）
@@ -356,7 +356,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 └─────────────────────────────────────────
 ```
 
-任务处理完后，将文件移到 `docs/ai-context/tasks/done/`。
+任务处理完后，将文件移到 `.claude/context/tasks/done/`。
 
 **规则 4.7 与规则 5 的组合：**
 
@@ -369,7 +369,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
   ├─ 用户说："给 B/子系统/子模块B2 派个排查任务"
   │
   ├─ 规则 4.7 触发 → 确认目标路径
-  ├─ 目标目录没有 docs/ai-context/ → 规则 5 自动触发
+  ├─ 目标目录没有 .claude/context/ → 规则 5 自动触发
   │     ├─ 初始化 B/子系统/子模块B2 的上下文
   │     └─ 安装 hooks
   ├─ 规则 4.7 继续 → 生成 task 文件
@@ -386,7 +386,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 **不需要提前在目标目录做任何配置。规则 5 保证目标目录自动初始化，规则 4.7 保证任务文件生成。任意程序、任意层级、任意深度，都能直接派发。**
 
 **A 不需要维护 B 的文件。** A 只做两件事（一次性）：
-1. Write 任务文件到 B 的 `docs/ai-context/tasks/`（写完不管）
+1. Write 任务文件到 B 的 `.claude/context/tasks/`（写完不管）
 2. 在 A 自己的 `current-task.md` 追加一行：`📤 已派发到 B — from-A-xxx.md`
 
 之后 A 正常继续自己的工作。需要知道进度时，`/session-load` 自动检查 B 的 `tasks/done/`，是"等待中"还是"已解决"。**A 和 B 各自维护各自的上下文，互不干扰。**
@@ -470,25 +470,25 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
   ├─ 询问："检测到以下子模块：A/B/C...，是否为它们也创建独立上下文？"
   │
   └─ 用户确认后，为每个子目录自动执行 mini-init：
-       ├── 子目录A/docs/ai-context/current-task.md
-       ├── 子目录A/docs/ai-context/decisions.md
-       ├── 子目录A/docs/ai-context/pitfalls.md
+       ├── 子目录A/.claude/context/current-task.md
+       ├── 子目录A/.claude/context/decisions.md
+       ├── 子目录A/.claude/context/pitfalls.md
        └── 子目录A/CLAUDE.md（精简版：只写本目录职责和接口）
 ```
 
 **嵌套支持：**
 
-分层上下文**天然支持任意深度**。因为 `session-load` 只检查当前目录的 `docs/ai-context/`，规则 5 也只在当前目录创建文件。
+分层上下文**天然支持任意深度**。因为 `session-load` 只检查当前目录的 `.claude/context/`，规则 5 也只在当前目录创建文件。
 
 ```
 大型项目/
-├── docs/ai-context/           # 项目级上下文
+├── .claude/context/           # 项目级上下文
 ├── 子系统/
-│   ├── docs/ai-context/       # 子系统级上下文
+│   ├── .claude/context/       # 子系统级上下文
 │   ├── 子模块A/
-│   │   ├── docs/ai-context/   # 模块级上下文
+│   │   ├── .claude/context/   # 模块级上下文
 │   │   └── 子模块A1/
-│   │       └── docs/ai-context/  # 子模块级上下文（任意深）
+│   │       └── .claude/context/  # 子模块级上下文（任意深）
 │   └── 子模块B/
 ```
 
@@ -511,7 +511,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 
 **不会做的事情：**
 - 不会重新扫描子模块内部的代码结构
-- 不会重新读取子模块的 `docs/ai-context/`
+- 不会重新读取子模块的 `.claude/context/`
 - 不会递归进入子目录
 
 **日常使用：**
@@ -543,18 +543,18 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 |-------------|---------|
 | 新增目录，匹配子模块识别标准 | "检测到新模块 `xxx/`，是否需要创建独立上下文？" → 用户确认后自动初始化 + 更新 architecture.md |
 | 新增目录，不匹配识别标准 | 忽略，不询问 |
-| 缓存的子模块目录已不存在 | "检测到 `yyy/` 模块已删除，是否从架构文档中移除？" → 用户确认后更新 architecture.md，其 `docs/ai-context/` 保留不动（手动删除） |
+| 缓存的子模块目录已不存在 | "检测到 `yyy/` 模块已删除，是否从架构文档中移除？" → 用户确认后更新 architecture.md，其 `.claude/context/` 保留不动（手动删除） |
 | 缓存的子模块目录还在，但内部结构大变 | "检测到 `zzz/` 模块结构有较大变化，是否需要更新上下文？" |
 
 这样无论用户何时新增或删除功能模块，下一次 load 或 sync 时自动感知变化。
 
 ### 规则 5：新项目自动初始化（最重要）
 
-当检测到 `docs/ai-context/` 目录不存在时，**不要只询问，直接执行初始化**：
+当检测到 `.claude/context/` 目录不存在时，**不要只询问，直接执行初始化**：
 
 1. 告知用户："检测到项目尚未初始化上下文系统，正在自动初始化..."
 2. 扫描项目结构：配置文件、顶层目录、源码文件
-3. 创建 `docs/ai-context/` 并生成模板文件（current-task.md、decisions.md、pitfalls.md）
+3. 创建 `.claude/context/` 并生成模板文件（current-task.md、decisions.md、pitfalls.md）
 4. 如果 `CLAUDE.md` 不存在，创建精简版
 5. **自动安装 hooks**：检查 `.claude/hooks.json` 是否存在，如果不存在则自动创建：
    - 写入 [hooks.json](#hooks-配置) 配置
@@ -564,7 +564,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 
 ### 规则 6：hooks 自动补装
 
-当项目已有 `docs/ai-context/` 但缺少 `.claude/hooks.json` 时，在 session-load 时检测并询问，用户确认后写入。
+当项目已有 `.claude/context/` 但缺少 `.claude/hooks.json` 时，在 session-load 时检测并询问，用户确认后写入。
 
 ### 规则 6.5：上下文文件瘦身（防止负载膨胀）
 
@@ -591,7 +591,7 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 
 **归档后的结构：**
 ```
-docs/ai-context/
+.claude/context/
 ├── decisions.md              ← 最近 10 条（load 时只读这个）
 ├── decisions-archive.md      ← 历史决策（需要时可手动查阅）
 ├── pitfalls.md               ← 最近 10 条
@@ -609,15 +609,15 @@ SVN 的每个分支是物理目录副本。**上下文直接在当前工作目�
 ```
 程序/
 ├── trunk/
-│   └── docs/ai-context/          ← 只在 trunk 工作才读
+│   └── .claude/context/          ← 只在 trunk 工作才读
 ├── branches/
 │   ├── feature-A/
-│   │   └── docs/ai-context/      ← 切换到 feature-A 才读
+│   │   └── .claude/context/      ← 切换到 feature-A 才读
 │   └── feature-B/                ← 不开就不碰
 ```
 
 **SVN 规则：**
-1. 上下文放在 `$(pwd)/docs/ai-context/`，只在当前目录
+1. 上下文放在 `$(pwd)/.claude/context/`，只在当前目录
 2. 不向上/横向扫描其他分支
 3. 跨分支任务 → `/task-send ../branches/feature-A`
 
@@ -640,18 +640,18 @@ Git 的所有分支共享同一个工作目录，需要用分支名隔离上下�
 │       │   └── ...
 │       └── feature-B/
 │
-├── .gitignore                    ← 添加 docs/ai-context/
+├── .gitignore                    ← 添加 .claude/context/
 ```
 
 **Git 规则：**
 
 1. **自动检测当前分支** — 每次操作前，用 `git rev-parse --abbrev-ref HEAD` 获取当前分支名
-2. **分支子目录** — 上下文文件实际路径为 `docs/ai-context/{分支名}/current-task.md`
+2. **分支子目录** — 上下文文件实际路径为 `.claude/context/{分支名}/current-task.md`
 3. **自动切换** — 切换分支后 session-load 自动读取新分支的上下文，无需手动操作
-4. **首次进入新分支** — 如果 `docs/ai-context/{分支名}/` 不存在，自动初始化（不用扫全项目）
-5. **gitignore** — 建议把 `docs/ai-context/` 加入 `.gitignore`，上下文是本地工作记录，不应提交到仓库
-6. **架构文档共享** — `architecture.md` 是项目级文件，放在 `docs/ai-context/` 根层，所有分支共享
-7. **跨分支任务派发** — "给 feature-A 分支派个排查任务"，目标路径自动为 `docs/ai-context/feature-A/`
+4. **首次进入新分支** — 如果 `.claude/context/{分支名}/` 不存在，自动初始化（不用扫全项目）
+5. **gitignore** — 建议把 `.claude/context/` 加入 `.gitignore`，上下文是本地工作记录，不应提交到仓库
+6. **架构文档共享** — `architecture.md` 是项目级文件，放在 `.claude/context/` 根层，所有分支共享
+7. **跨分支任务派发** — "给 feature-A 分支派个排查任务"，目标路径自动为 `.claude/context/feature-A/`
 
 **自动初始化的智能判断：**
 
@@ -660,13 +660,13 @@ Git 的所有分支共享同一个工作目录，需要用分支名隔离上下�
   │
   ├─ 检测到 .git/ 存在 → Git 项目
   │     └─ git rev-parse --abbrev-ref HEAD → "feature-A"
-  │           └─ 上下文路径：docs/ai-context/feature-A/
+  │           └─ 上下文路径：.claude/context/feature-A/
   │
   ├─ 检测到 .svn/ 或 trunk/branches/tags → SVN 项目
-  │     └─ 上下文路径：$(pwd)/docs/ai-context/
+  │     └─ 上下文路径：$(pwd)/.claude/context/
   │
   └─ 都没有 → 普通目录
-        └─ 上下文路径：docs/ai-context/
+        └─ 上下文路径：.claude/context/
 ```
 
 **首次进入分支的体验：**
@@ -677,9 +677,9 @@ Git 的所有分支共享同一个工作目录，需要用分支名隔离上下�
 
 AI（规则 0 自动执行）：
   → git rev-parse → feature-payment
-  → docs/ai-context/feature-payment/ 不存在
+  → .claude/context/feature-payment/ 不存在
   → 规则 5 触发："检测到新分支 feature-payment，正在初始化上下文..."
-  → 创建 docs/ai-context/feature-payment/ 下的模板文件
+  → 创建 .claude/context/feature-payment/ 下的模板文件
   → 提示：上下文已就绪，可以开始工作了
 ```
 
@@ -687,10 +687,10 @@ AI（规则 0 自动执行）：
 
 | 文件 | 用途 | 更新策略 |
 |------|------|---------|
-| `docs/ai-context/current-task.md` | 任务进度 | **覆盖**更新 |
-| `docs/ai-context/decisions.md` | 技术决策 | **追加** |
-| `docs/ai-context/pitfalls.md` | 踩坑记录 | **追加** |
-| `docs/ai-context/architecture.md` | 项目架构 | context-sync 生成 |
+| `.claude/context/current-task.md` | 任务进度 | **覆盖**更新 |
+| `.claude/context/decisions.md` | 技术决策 | **追加** |
+| `.claude/context/pitfalls.md` | 踩坑记录 | **追加** |
+| `.claude/context/architecture.md` | 项目架构 | context-sync 生成 |
 
 **并发写入安全：** 多会话并行时，每个任务写入独立的 `tasks/results/{task-id}.result.md`，互不冲突。主会话在 `/session-load` 时一次性合并所有结果到共享文件。详见 task-orchestrator 技能。
 
@@ -740,7 +740,14 @@ AI（规则 0 自动执行）：
 ```bash
 #!/bin/bash
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
+# 优先新路径，兼容旧路径
+if [ -d "$PROJECT_DIR/.claude/context" ]; then
+    CONTEXT_DIR="$PROJECT_DIR/.claude/context"
+elif [ -d "$PROJECT_DIR/docs/ai-context" ]; then
+    CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
+else
+    CONTEXT_DIR="$PROJECT_DIR/.claude/context"
+fi
 MARKER_FILE="$PROJECT_DIR/.claude/hooks/.context_checked"
 
 if [ ! -d "$CONTEXT_DIR" ] && [ ! -f "$MARKER_FILE" ]; then
@@ -774,3 +781,4 @@ case "$WRITTEN_FILE" in
         ;;
 esac
 ```
+

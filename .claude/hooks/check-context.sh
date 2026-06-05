@@ -5,7 +5,9 @@
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 # 优先新路径，兼容旧路径
-if [ -d "$PROJECT_DIR/docs/ai-context" ]; then
+if [ -d "$PROJECT_DIR/.claude/context" ]; then
+    CONTEXT_DIR="$PROJECT_DIR/.claude/context"
+elif [ -d "$PROJECT_DIR/docs/ai-context" ]; then
     CONTEXT_DIR="$PROJECT_DIR/docs/ai-context"
 else
     CONTEXT_DIR="$PROJECT_DIR/.claude/context"

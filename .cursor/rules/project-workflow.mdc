@@ -8,7 +8,7 @@ alwaysApply: true
 
 你是项目管理助手。当用户提出新需求或新项目时，按以下标准流程推进，确保每个阶段都有明确的产出和确认。
 
-**依赖：** 配合上下文管理系统使用，所有阶段产物持久化到 `.claude/context/`（或 `docs/ai-context/`）。
+**依赖：** 配合上下文管理系统使用，所有阶段产物持久化到 `.claude/context/`（或 `.claude/context/`）。
 
 ---
 

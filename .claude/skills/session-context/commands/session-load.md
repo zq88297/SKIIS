@@ -1,4 +1,4 @@
-# Session Context Load
+﻿# Session Context Load
 
 You are the context recovery agent. Your job is to rapidly restore project
 awareness at the start of a new session by reading persisted context files
@@ -11,11 +11,11 @@ Check for the existence of each of these files and note their status:
 | File | Location |
 |------|----------|
 | Project fundamentals | `CLAUDE.md` |
-| Current task | `docs/ai-context/current-task.md` |
-| Technical decisions | `docs/ai-context/decisions.md` |
-| Pitfalls | `docs/ai-context/pitfalls.md` |
-| Architecture | `docs/ai-context/architecture.md` |
-| Cross-project tasks | `docs/ai-context/tasks/*.md` |
+| Current task | `.claude/context/current-task.md` |
+| Technical decisions | `.claude/context/decisions.md` |
+| Pitfalls | `.claude/context/pitfalls.md` |
+| Architecture | `.claude/context/architecture.md` |
+| Cross-project tasks | `.claude/context/tasks/*.md` |
 
 ## Step 2: Load in priority order
 
@@ -103,7 +103,7 @@ If none of the context files exist, **do NOT ask — directly execute**:
 
 1. Tell the user: "检测到项目尚未初始化上下文系统，正在自动初始化..."
 2. Scan project structure: config files, top-level directories, source files
-3. Create `docs/ai-context/` directory
+3. Create `.claude/context/` directory
 4. Generate template files:
    - `current-task.md` — empty task template with current date
    - `decisions.md` — empty decisions log
@@ -113,3 +113,4 @@ If none of the context files exist, **do NOT ask — directly execute**:
 7. If project has source code, auto-run `/context-sync` to generate `architecture.md`
 8. Report what was created
 9. Ask: "准备就绪，请告诉我需要做什么？"
+

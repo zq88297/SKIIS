@@ -1,4 +1,4 @@
-# 任务并行执行
+﻿# 任务并行执行
 
 你是任务执行器。根据 `/task:plan` 生成的计划，为可并行任务启动独立的 Claude Code 会话。
 
@@ -14,7 +14,7 @@
 
 对每个要执行的任务，**先检查认领锁**：
 
-1. 检查 `docs/ai-context/tasks/claims/{task-id}.claim` 是否存在
+1. 检查 `.claude/context/tasks/claims/{task-id}.claim` 是否存在
 2. 不存在 → 创建 claim 文件：
    ```
    任务: {标题}
@@ -29,7 +29,7 @@
 
 为每个要并行执行的任务，生成一个**自包含的任务描述文件**。
 
-保存到 `docs/ai-context/tasks/async/` 目录（不和其他任务混淆）：
+保存到 `.claude/context/tasks/async/` 目录（不和其他任务混淆）：
 
 ```markdown
 # 异步任务：{任务标题}
@@ -53,7 +53,7 @@
 
 ## 完成后
 1. 将本文件移到 `../async-done/`
-2. 在来源项目的 `docs/ai-context/current-task.md` 中更新状态
+2. 在来源项目的 `.claude/context/current-task.md` 中更新状态
 ```
 
 ## Step 4：自动启动并行会话
@@ -62,10 +62,10 @@
 
 ```bash
 # 同项目任务：后台执行
-cd {项目目录} && claude -p "读取 docs/ai-context/tasks/async/{task-file}.md，按文件中的任务描述执行。完成后：1) 将结果追加到文件末尾 2) 将文件移到 async-done/ 3) 将 claim 移到 claims/done/"
+cd {项目目录} && claude -p "读取 .claude/context/tasks/async/{task-file}.md，按文件中的任务描述执行。完成后：1) 将结果追加到文件末尾 2) 将文件移到 async-done/ 3) 将 claim 移到 claims/done/"
 
 # 跨项目任务：指定项目目录
-claude --project-dir {目标项目路径} -p "读取 docs/ai-context/tasks/from-xxx.md，按文件中的排查清单执行..."
+claude --project-dir {目标项目路径} -p "读取 .claude/context/tasks/from-xxx.md，按文件中的排查清单执行..."
 ```
 
 使用 Bash 的 `run_in_background` 模式，多个任务同时启动。
@@ -103,3 +103,4 @@ gnome-terminal -- bash -c "cd {dir} && claude; exec bash"
 1. 从 `async-done/` 读取完成结果
 2. 更新 `current-task.md` 的 Completed 和 Pending
 3. 如果当前任务也完成了，检查是否可以启动下一组任务
+

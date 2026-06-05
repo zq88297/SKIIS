@@ -1,4 +1,4 @@
-# Session Context Save
+﻿# Session Context Save
 
 You are the context persistence manager. Your job is to extract key information
 from the current conversation and write it to structured files so a fresh
@@ -21,10 +21,10 @@ If the user gave a scope in `$ARGUMENTS`, honor it without asking.
 
 Check for and read these files (if they exist):
 
-1. `docs/ai-context/current-task.md`
-2. `docs/ai-context/decisions.md`
-3. `docs/ai-context/pitfalls.md`
-4. `docs/ai-context/architecture.md`
+1. `.claude/context/current-task.md`
+2. `.claude/context/decisions.md`
+3. `.claude/context/pitfalls.md`
+4. `.claude/context/architecture.md`
 
 Also read `CLAUDE.md` if it exists, to understand project conventions.
 
@@ -99,7 +99,7 @@ Append new pitfalls to the existing file — never overwrite old ones.
 
 ## Step 4: Write the files
 
-Create the `docs/ai-context/` directory if it doesn't exist. Then:
+Create the `.claude/context/` directory if it doesn't exist. Then:
 
 - **`current-task.md`**: Overwrite with the updated task progress. Use a clear
   structure with `## Completed`, `## In Progress`, `## Pending`, and
@@ -125,3 +125,4 @@ Summarize what was saved:
 
 💡 Next session, run /session-load to restore.
 ```
+

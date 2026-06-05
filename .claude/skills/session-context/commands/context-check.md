@@ -1,4 +1,4 @@
-# Context Health Check
+﻿# Context Health Check
 
 You are the context health monitor. Your job is to assess the current
 conversation state and report on context quality, token usage, and the
@@ -73,7 +73,7 @@ Overall risk:         🟢 Low / 🟡 Medium / 🔴 High
 
 Check the persisted context files:
 
-- **File existence**: Do `docs/ai-context/` files exist?
+- **File existence**: Do `.claude/context/` files exist?
 - **Freshness**: When was `current-task.md` last updated? Compare the
   timestamp to the current conversation — is it stale?
 - **Consistency**: Does the content of the persisted files match what the
@@ -83,9 +83,9 @@ Check the persisted context files:
 
 ```
 External Memory
-docs/ai-context/current-task.md:  ✅ Exists / ⚠️ Stale (last updated: date) / ❌ Missing
-docs/ai-context/decisions.md:     ✅ Exists / ❌ Missing
-docs/ai-context/pitfalls.md:      ✅ Exists / ❌ Missing
+.claude/context/current-task.md:  ✅ Exists / ⚠️ Stale (last updated: date) / ❌ Missing
+.claude/context/decisions.md:     ✅ Exists / ❌ Missing
+.claude/context/pitfalls.md:      ✅ Exists / ❌ Missing
 Sync status:  ✅ In sync / ⚠️ Stale / ❌ Out of sync
 ```
 
@@ -143,3 +143,4 @@ Overall: 🟢 Low
 
 After presenting the report, ask the user what they'd like to do — the
 decision is theirs, but your recommendation should be clear and honest.
+

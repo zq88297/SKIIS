@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # SKIIS 安装功能测试
 # 用法: bash test/test-install.sh
 # 在临时目录中测试全局安装和项目安装
@@ -81,7 +81,7 @@ if [ -d "$PROJ_DIR/.claude/context" ]; then
     [ -f "$PROJ_DIR/.claude/context/decisions.md" ] && green "项目安装: decisions.md" || red "项目安装: 缺少 decisions.md"
     [ -f "$PROJ_DIR/.claude/context/pitfalls.md" ] && green "项目安装: pitfalls.md" || red "项目安装: 缺少 pitfalls.md"
 elif [ -d "$PROJ_DIR/docs/ai-context" ]; then
-    green "项目安装: 上下文目录 (docs/ai-context/ 兼容)"
+    green "项目安装: 上下文目录 (.claude/context/ 兼容)"
 else
     red "项目安装: 上下文目录未创建"
 fi
@@ -135,3 +135,4 @@ echo "=============================="
 if [ $FAIL -gt 0 ]; then
     exit 1
 fi
+

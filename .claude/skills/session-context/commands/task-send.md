@@ -1,4 +1,4 @@
-# 跨项目/跨模块任务派发
+﻿# 跨项目/跨模块任务派发
 
 你是任务派发器。将当前项目中发现的问题，以结构化任务的形式发送给另一个项目或模块。
 
@@ -31,13 +31,13 @@
 
 ### Step 3：初始化目标（如需）
 
-检查目标项目的 `docs/ai-context/` 目录：
+检查目标项目的 `.claude/context/` 目录：
 - 不存在 → 自动执行规则 5（初始化上下文系统 + 安装 hooks）
-- 存在但缺少 `tasks/` → 创建 `docs/ai-context/tasks/`
+- 存在但缺少 `tasks/` → 创建 `.claude/context/tasks/`
 
 ### Step 4：生成任务文件
 
-在目标项目中创建 `docs/ai-context/tasks/from-{来源项目}-{日期}-{简要}.md`：
+在目标项目中创建 `.claude/context/tasks/from-{来源项目}-{日期}-{简要}.md`：
 
 ```markdown
 # 来自「{来源项目}」的排查任务
@@ -82,7 +82,7 @@
 ```markdown
 📤 **已派发任务** — {datetime}
 - 目标：{目标路径}
-- 任务文件：{目标路径}/docs/ai-context/tasks/from-xxx.md
+- 任务文件：{目标路径}/.claude/context/tasks/from-xxx.md
 - 摘要：{一句话描述}
 - 状态：等待排查
 ```
@@ -94,7 +94,8 @@
 
 📤 来源：{当前项目}（{层级}）
 📥 目标：{目标项目}
-📄 任务文件：docs/ai-context/tasks/from-{来源}-{日期}.md
+📄 任务文件：.claude/context/tasks/from-{来源}-{日期}.md
 
 目标项目下次 /session-load 时将优先展示此任务。
 ```
+

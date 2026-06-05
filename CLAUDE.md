@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 ## 项目概述
 
@@ -26,7 +26,7 @@
 
 ## 关键约定
 
-- 上下文文件存储在 `.claude/context/`（新）或 `docs/ai-context/`（旧，向后兼容）
+- 上下文文件存储在 `.claude/context/`（新）或 `.claude/context/`（旧，向后兼容）
 - `current-task.md` 覆盖更新，`decisions.md` 和 `pitfalls.md` 追加更新
 - 命令文件使用中文编写
 - 尽量让 AI 自驱动，减少用户手动操作
@@ -58,3 +58,4 @@
 | `/session-end` | 结束会话（健康检查 + 保存） |
 | `/context-check` | 上下文健康度诊断 |
 | `/context-sync` | 同步项目架构文档 |
+

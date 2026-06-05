@@ -1,4 +1,4 @@
----
+﻿---
 name: task-orchestrator
 description: "Auto-analyze multi-step plans for parallel execution. Trigger when AI generates 2+ step plans, or on /task:plan, /task:run, parallel, 并行, 同时执行, 多任务, 批量, 一起做, 一起改, 分步."
 ---
@@ -7,7 +7,7 @@ description: "Auto-analyze multi-step plans for parallel execution. Trigger when
 
 你是任务调度器。读取 SKIIS（session-context）产生的上下文文件，分析任务依赖关系，规划并行/串行执行顺序，并协调多会话并行执行。
 
-**依赖：** 必须安装了 session-context 技能。本技能读取 `docs/ai-context/` 下的文件。
+**依赖：** 必须安装了 session-context 技能。本技能读取 `.claude/context/` 下的文件。
 
 ---
 
@@ -71,10 +71,10 @@ description: "Auto-analyze multi-step plans for parallel execution. Trigger when
 
 ```bash
 # 在当前项目目录执行异步任务
-claude -p "读取 docs/ai-context/tasks/async/task-xxx.md，执行其中描述的任务，完成后将结果写入 docs/ai-context/tasks/async-done/"
+claude -p "读取 .claude/context/tasks/async/task-xxx.md，执行其中描述的任务，完成后将结果写入 .claude/context/tasks/async-done/"
 
 # 在其他项目目录执行（跨项目任务）
-claude --project-dir /path/to/other-project -p "读取 docs/ai-context/tasks/from-xxx.md，执行排查任务"
+claude --project-dir /path/to/other-project -p "读取 .claude/context/tasks/from-xxx.md，执行排查任务"
 ```
 
 **方式二：新终端窗口（用户可见）**
@@ -92,7 +92,7 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **方式三：任务文件（手动）**
 
-将任务写入 `docs/ai-context/tasks/async/`，用户手动在新会话中执行 `/task:run`。适用于需要人工判断的复杂任务。
+将任务写入 `.claude/context/tasks/async/`，用户手动在新会话中执行 `/task:run`。适用于需要人工判断的复杂任务。
 
 ### 并发限制和自动接续
 
@@ -134,14 +134,14 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **问题：** 会话 A 执行 Task-X 完成后又接了 Task-Y，但 Task-Y 已在会话 B 中执行。两个会话同时改同一文件 → 冲突。
 
-**解决：** 基于文件系统的任务认领锁。`docs/ai-context/tasks/claims/` 目录。
+**解决：** 基于文件系统的任务认领锁。`.claude/context/tasks/claims/` 目录。
 
 **执行任何任务前（所有会话都必须遵守）：**
 
 ```
 开始 Task-X 前
   │
-  ├─ 检查 docs/ai-context/tasks/claims/task-X.claim 是否存在？
+  ├─ 检查 .claude/context/tasks/claims/task-X.claim 是否存在？
   │
   ├─ 不存在 → 创建 claim 文件，开始执行
   │     claim 内容：{任务ID, 会话标识, 开始时间, 涉及文件列表}
@@ -156,7 +156,7 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **任务完成时：**
 
-1. 将 claim 文件移到 `docs/ai-context/tasks/claims/done/`
+1. 将 claim 文件移到 `.claude/context/tasks/claims/done/`
 2. 在 claim 文件末尾追加完成状态和耗时
 3. 如果修改了涉及文件列表之外的文件，更新 current-task.md
 
@@ -164,7 +164,7 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **`/task:run` 的额外职责：** 启动任务前先认领，认领失败则跳过。
 
-**所有会话的通用规则：** 开始任何新任务前，先检查 `docs/ai-context/tasks/claims/` 是否有冲突。这是 session-context 规则的一部分（通过 `session-load` 自动检查）。
+**所有会话的通用规则：** 开始任何新任务前，先检查 `.claude/context/tasks/claims/` 是否有冲突。这是 session-context 规则的一部分（通过 `session-load` 自动检查）。
 
 ---
 
@@ -186,7 +186,7 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 
 **写结果文件（各任务独立，无需锁）：**
 
-每个会话完成任务后，将结果写入 `docs/ai-context/tasks/results/{task-id}.result.md`：
+每个会话完成任务后，将结果写入 `.claude/context/tasks/results/{task-id}.result.md`：
 
 ```markdown
 # 任务结果：{任务标题}
@@ -218,3 +218,4 @@ gnome-terminal -- bash -c "cd '$PROJECT_DIR' && claude; exec bash"
 - `/task:run` → 执行计划，为并行任务启动独立会话
 
 当用户调用这些命令时，读取 `commands/` 目录下对应的 `.md` 文件。
+

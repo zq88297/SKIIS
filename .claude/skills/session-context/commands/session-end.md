@@ -1,4 +1,4 @@
-# Session End
+﻿# Session End
 
 You are the session close-out manager. Your job is to wrap up the current
 session cleanly: assess context health, generate a summary, persist everything
@@ -106,16 +106,16 @@ Let the user confirm, correct, or add to the summary before writing anything.
 
 After user confirmation:
 
-- **`docs/ai-context/current-task.md`** — **Overwrite** with updated task
+- **`.claude/context/current-task.md`** — **Overwrite** with updated task
   progress. Move completed items to the Completed section, keep in-progress
   items accurate, and update pending items. Include the next steps from the
   summary.
 
-- **`docs/ai-context/decisions.md`** — **Append** any new decisions from this
+- **`.claude/context/decisions.md`** — **Append** any new decisions from this
   session. Each decision gets a dated entry following the same format as
   session-save.
 
-- **`docs/ai-context/pitfalls.md`** — **Append** any new pitfalls encountered
+- **`.claude/context/pitfalls.md`** — **Append** any new pitfalls encountered
   in this session.
 
 ## Step 5: Output the end-of-session checklist
@@ -123,9 +123,9 @@ After user confirmation:
 ```
 ✅ Session End Checklist
 
-□ Task progress saved   → docs/ai-context/current-task.md
-□ Decisions recorded     → docs/ai-context/decisions.md (+N new)
-□ Pitfalls archived      → docs/ai-context/pitfalls.md (+N new)
+□ Task progress saved   → .claude/context/current-task.md
+□ Decisions recorded     → .claude/context/decisions.md (+N new)
+□ Pitfalls archived      → .claude/context/pitfalls.md (+N new)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -146,3 +146,4 @@ If health is 🔴 Red, add emphasis:
 ⚠️ The context window is near capacity. Starting a fresh session will
    give you better response quality, faster answers, and fewer errors.
 ```
+

@@ -1,6 +1,6 @@
-# 项目上下文自动同步
+﻿# 项目上下文自动同步
 
-你是项目上下文同步器。通过扫描项目文件和代码结构，自动更新项目概述文件，确保 `docs/ai-context/architecture.md` 始终反映项目真实状态。首次运行时会自动初始化完整的上下文文件结构。
+你是项目上下文同步器。通过扫描项目文件和代码结构，自动更新项目概述文件，确保 `.claude/context/architecture.md` 始终反映项目真实状态。首次运行时会自动初始化完整的上下文文件结构。
 
 ## 参数说明
 
@@ -15,12 +15,12 @@
 
 ### Phase 0：首次运行检测
 
-检查 `docs/ai-context/` 目录是否存在。
+检查 `.claude/context/` 目录是否存在。
 
 **检测逻辑：**
 
 使用 Glob 或 Bash 检查：
-- `docs/ai-context/` 目录是否存在
+- `.claude/context/` 目录是否存在
 - `CLAUDE.md` 是否存在
 
 根据检测结果分支处理：
@@ -33,7 +33,7 @@
 🔍 检测到项目尚未初始化上下文管理系统
 
 是否需要初始化？
-- 将创建 docs/ai-context/ 目录
+- 将创建 .claude/context/ 目录
 - 将创建 CLAUDE.md 项目概述
 - 将创建完整的架构文档
 ```
@@ -62,7 +62,7 @@
 #### 步骤 1：创建目录结构
 
 ```bash
-mkdir -p docs/ai-context
+mkdir -p .claude/context
 ```
 
 #### 步骤 2：采集项目基础信息
@@ -123,7 +123,7 @@ find . -maxdepth 3 -type f \
 1. 每次新对话开始时，运行 /session-load 加载上下文
 2. 项目结构发生较大变化时，运行 /context-sync 同步架构文档
 3. 对话超过 20 轮时，主动提醒保存上下文
-4. 重要决策做出后，记录到 docs/ai-context/decisions.md
+4. 重要决策做出后，记录到 .claude/context/decisions.md
 ```
 
 #### 步骤 4：生成 context-template.md（项目骨架模板）
@@ -172,21 +172,21 @@ src/
 
 创建以下文件：
 
-- `docs/ai-context/current-task.md`:
+- `.claude/context/current-task.md`:
   ```markdown
   # 当前任务
 
   > 暂无进行中的任务
   ```
 
-- `docs/ai-context/decisions.md`:
+- `.claude/context/decisions.md`:
   ```markdown
   # 技术决策记录
 
   > 记录项目中的关键技术选择及原因
   ```
 
-- `docs/ai-context/pitfalls.md`:
+- `.claude/context/pitfalls.md`:
   ```markdown
   # 踩坑记录
 
@@ -273,8 +273,8 @@ src/
 - `Dockerfile` — 容器化配置
 
 **现有上下文文件：**
-- `docs/ai-context/architecture.md` — 已有的项目概述
-- `docs/ai-context/current-task.md` — 当前任务
+- `.claude/context/architecture.md` — 已有的项目概述
+- `.claude/context/current-task.md` — 当前任务
 
 #### 1.2 扫描目录结构
 
@@ -323,7 +323,7 @@ src/
 
 ### Phase 2：生成/更新架构文档
 
-读取已有的 `docs/ai-context/architecture.md`（如果存在），基于采集到的信息生成更新版本。
+读取已有的 `.claude/context/architecture.md`（如果存在），基于采集到的信息生成更新版本。
 
 **文档模板（覆盖写入）：**
 
@@ -432,7 +432,7 @@ src/
 确认写入？
 ```
 
-等待用户确认后，写入 `docs/ai-context/architecture.md`。
+等待用户确认后，写入 `.claude/context/architecture.md`。
 
 ---
 
@@ -461,7 +461,7 @@ src/
 ✅ 项目上下文同步完成
 
 📄 已更新
-- docs/ai-context/architecture.md
+- .claude/context/architecture.md
 
 📊 项目快照
 - 语言：TypeScript
@@ -509,3 +509,4 @@ src/
 - 切换了技术方案（如状态管理、样式框架）
 - 完成了一个大的功能模块后
 ```
+

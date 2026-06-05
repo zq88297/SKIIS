@@ -75,7 +75,7 @@ alwaysApply: true
 
 ## 任务认领锁
 
-开始任何任务前，检查 `docs/ai-context/tasks/claims/{task-id}.claim`：
+开始任何任务前，检查 `.claude/context/tasks/claims/{task-id}.claim`：
 - 不存在 → 创建 claim，开始执行
 - 存在且 < 24 小时 → 已被认领，跳过
 - 存在且 > 24 小时 → 僵尸锁，询问是否接管

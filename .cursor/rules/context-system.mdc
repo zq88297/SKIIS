@@ -15,7 +15,7 @@ alwaysApply: true
 ```
 用户提问
   │
-  ├─ 项目简单？→ 直接加载当前目录的 docs/ai-context/ → 回答
+  ├─ 项目简单？→ 直接加载当前目录的 .claude/context/ → 回答
   │
   └─ 项目复杂（有子模块）？
         ├─ 根据用户问题判断涉及哪个子模块
@@ -28,7 +28,7 @@ alwaysApply: true
 
 ## 上下文文件系统
 
-所有上下文存储在 `docs/ai-context/` 下：
+所有上下文存储在 `.claude/context/` 下：
 
 | 文件 | 用途 | 更新策略 |
 |------|------|---------|
@@ -42,20 +42,20 @@ alwaysApply: true
 
 每次新对话开始，如果用户没有提供明确任务，立即执行：
 
-1. 检查 `docs/ai-context/current-task.md` 是否存在
+1. 检查 `.claude/context/current-task.md` 是否存在
 2. 如果存在，读取并呈现摘要（已完成 / 进行中 / 待完成 / 关键约束）
-3. 读取 `docs/ai-context/decisions.md`（最近 5 条）
-4. 读取 `docs/ai-context/pitfalls.md`（最近 5 条）
+3. 读取 `.claude/context/decisions.md`（最近 5 条）
+4. 读取 `.claude/context/pitfalls.md`（最近 5 条）
 5. **优先展示 `## 🔜 下次继续` 段落**（这是最重要的——告诉 AI 从哪里开始）
 6. 询问："准备就绪，请告诉我需要做什么？"
 
 ## 规则 2：新项目自动初始化
 
-当检测到 `docs/ai-context/` 目录不存在时，**不要询问，直接执行**：
+当检测到 `.claude/context/` 目录不存在时，**不要询问，直接执行**：
 
 1. 告知用户："检测到项目尚未初始化上下文系统，正在自动初始化..."
 2. 扫描项目结构：配置文件、顶层目录、源码文件
-3. 创建 `docs/ai-context/` 并生成模板文件（current-task.md、decisions.md、pitfalls.md）
+3. 创建 `.claude/context/` 并生成模板文件（current-task.md、decisions.md、pitfalls.md）
 4. 如果项目有源码，自动生成 `architecture.md`
 5. 报告初始化结果
 
@@ -251,12 +251,12 @@ alwaysApply: true
 
 ## 分支上下文隔离（SVN + Git）
 
-**SVN（分支是物理目录）：** 上下文在 `$(pwd)/docs/ai-context/`，只在当前目录。
+**SVN（分支是物理目录）：** 上下文在 `$(pwd)/.claude/context/`，只在当前目录。
 
-**Git（分支共享工作目录）：** 用 `git rev-parse --abbrev-ref HEAD` 获取当前分支，上下文在 `docs/ai-context/{分支名}/`。
+**Git（分支共享工作目录）：** 用 `git rev-parse --abbrev-ref HEAD` 获取当前分支，上下文在 `.claude/context/{分支名}/`。
 
 ```
-docs/ai-context/
+.claude/context/
 ├── main/                 ← main 分支上下文
 ├── feature-payment/      ← feature-payment 分支上下文
 └── architecture.md       ← 项目架构（所有分支共享）
@@ -264,5 +264,5 @@ docs/ai-context/
 
 - 切换分支自动切换上下文
 - 首次进入新分支自动初始化
-- `docs/ai-context/` 建议 gitignore（本地工作记录，不提交）
+- `.claude/context/` 建议 gitignore（本地工作记录，不提交）
 - 跨分支任务："给 feature-payment 分支派个排查任务"
