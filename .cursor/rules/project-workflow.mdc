@@ -282,6 +282,50 @@ alwaysApply: true
 
 ---
 
+## 前端界面自动美化（frontend-design 集成）
+
+当项目涉及前端界面开发时（需求中包含 UI、界面、前端、页面、组件、样式、布局、交互、视觉等关键词），自动检测并调用 `/frontend-design` skill 进行界面美化。
+
+**检测时机：** ① 需求分析阶段，识别到 UI 相关需求后立即检测。
+
+**检测与调用流程：**
+
+```text
+需求中包含 UI/界面相关内容？
+  │
+  ├─ 是 → 检查 /frontend-design skill 是否已安装
+  │     │
+  │     ├─ 已安装 → 自动调用 /frontend-design，将 UI 需求传入
+  │     │           由 frontend-design 负责界面设计和美化
+  │     │           本 workflow 继续管理非 UI 部分的开发流程
+  │     │
+  │     └─ 未安装 → 提示用户：
+  │           "检测到项目涉及前端界面开发，建议安装 /frontend-design skill
+  │            以获得专业的界面设计和美化能力。
+  │
+  │            安装方式：{从对应仓库下载安装}
+  │
+  │            是否安装？"
+  │
+  │           ├─ 用户确认安装 → 指导用户完成安装后继续
+  │           └─ 用户跳过 → 本 workflow 自行处理 UI 部分（无专业美化）
+  │
+  └─ 否 → 正常流程，不涉及前端
+```
+
+**职责分工：**
+
+| 职责 | 负责方 |
+| --- | --- |
+| 需求分析、方案设计、项目管理 | project-workflow |
+| 前端界面设计、组件选型、样式美化 | frontend-design |
+| 非 UI 部分的代码实现 | project-workflow |
+| 前端代码实现 | project-workflow（按 frontend-design 的设计方案） |
+
+**注意：** frontend-design 只负责界面设计和美化方案，不替代 project-workflow 的项目管理流程。两者协作而非替代。
+
+---
+
 ## 触发关键词
 
 用户说以下任何内容时，立即执行对应操作：
