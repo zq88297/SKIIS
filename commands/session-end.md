@@ -13,7 +13,7 @@ getting full and quality will degrade if we don't reset.
 ### Fatigue signals to check
 
 | Signal | What to look for |
-|--------|-----------------|
+| -------- | ----------------- |
 | Turn count | Has the conversation exceeded ~30 exchanges? |
 | Repetition | Is the AI repeating earlier suggestions or explanations? |
 | Path/variable errors | Have there been incorrect file paths, function names, or variable names in recent turns? |
@@ -49,9 +49,11 @@ Review the conversation from start to finish and produce:
 - 验证方式（怎么确认修好了）
 
 ### c) 新增依赖 ⚠️ 重要
+
 **如果本次会话新增了依赖库、工具、SDK 等，必须记录：**
+
 | 依赖名 | 版本 | 用途 | 安装方式 |
-|--------|------|------|---------|
+| -------- | ------ | ------ | --------- |
 | libssl | 3.0 | TLS 支持 | apt install libssl-dev |
 | ... | ... | ... | ... |
 

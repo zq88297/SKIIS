@@ -118,7 +118,7 @@ Summarize what was saved:
 ✅ Context saved
 
 | File | Action | Content |
-|------|--------|---------|
+| ------ | -------- | --------- |
 | current-task.md | Updated | N completed, M pending tasks |
 | decisions.md | +N new | Decision YYYY-MM-DD-N: <summary> |
 | pitfalls.md | +N new | <problem summary> |

@@ -42,7 +42,7 @@ description: "Auto-analyze multi-step plans for parallel execution. Trigger when
 ### 任务来源
 
 | 来源 | 位置 | 含义 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 本地任务 | `current-task.md` 的 Pending 列表 | 当前项目自己的待办 |
 | 本地进行中 | `current-task.md` 的 In Progress | 当前正在做的 |
 | 跨模块任务 | `tasks/*.md`（非 done/） | 其他项目派来的排查任务 |
@@ -52,7 +52,7 @@ description: "Auto-analyze multi-step plans for parallel execution. Trigger when
 一个任务是否依赖另一个任务完成，按以下规则判断：
 
 | 规则 | 判断方法 | 结论 |
-|------|---------|------|
+| ------ | --------- | ------ |
 | 同文件冲突 | 两个任务涉及修改相同的文件 | 🔴 串行，必须按序执行 |
 | 同函数冲突 | 两个任务涉及修改同一个函数/模块 | 🔴 串行 |
 | 输出依赖 | 任务 B 明确需要任务 A 的输出结果 | 🔴 串行，A 先 B 后 |

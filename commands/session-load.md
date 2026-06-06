@@ -9,7 +9,7 @@ and presenting a structured summary to the user.
 Check for the existence of each of these files and note their status:
 
 | File | Location |
-|------|----------|
+| ------ | ---------- |
 | Project fundamentals | `CLAUDE.md` |
 | Current task | `.claude/context/current-task.md` |
 | Technical decisions | `.claude/context/decisions.md` |

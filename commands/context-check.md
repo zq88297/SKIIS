@@ -133,7 +133,7 @@ Overall: 🟢 Low
 ## Decision matrix
 
 | Token | Info Quality | Hallucination | Memory | Action |
-|-------|-------------|---------------|--------|--------|
+| ------ | ------------- | --------------- | -------- | -------- |
 | 🟢 | ✅ | 🟢 | ✅ | Keep working |
 | 🟡 | ✅ | 🟢 | ✅ | Consider saving soon |
 | 🟡 | ⚠️ | 🟡 | ⚠️ | Save now, end session soon |
