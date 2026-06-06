@@ -48,6 +48,20 @@ else {
     $isGlobal = $false
 }
 
+# 检测是否安装到自身（源目录 == 目标目录）
+# 全局安装始终需要复制文件（源是仓库，目标是 ~/.claude/，永远不同）
+if ($isGlobal) {
+    $isSelfInstall = $false
+}
+else {
+    $isSelfInstall = (Resolve-Path $scriptDir).Path -eq (Resolve-Path $targetDir).Path
+}
+
+if ($isSelfInstall) {
+    Write-Host "🔍 检测到在仓库自身目录运行，跳过文件复制（文件已就位）" -ForegroundColor Gray
+    Write-Host ""
+}
+
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  SKIIS — Claude Code 上下文管理技能" -ForegroundColor Cyan
@@ -72,7 +86,10 @@ $commandsDir = "$targetDir\commands"
 New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
 
 $sourceCommands = "$scriptDir\.claude\commands\"
-if (Test-Path $sourceCommands) {
+if ($isSelfInstall) {
+    Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+}
+elseif (Test-Path $sourceCommands) {
     Copy-Item -Path "$sourceCommands*" -Destination $commandsDir -Force
     Write-Host "  ✅ 5 个命令已安装 (/session-load 等)" -ForegroundColor Green
 }
@@ -87,7 +104,10 @@ else {
 $cursorDir = "$targetDir\.cursor\rules"
 New-Item -ItemType Directory -Force -Path $cursorDir | Out-Null
 $sourceCursor = "$scriptDir\.cursor\rules\"
-if (Test-Path $sourceCursor) {
+if ($isSelfInstall) {
+    Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+}
+elseif (Test-Path $sourceCursor) {
     Copy-Item -Path "$sourceCursor*" -Destination $cursorDir -Force
     Write-Host "  ✅ Cursor 规则已安装 (.cursor/rules/*.mdc)" -ForegroundColor Green
 }
@@ -96,27 +116,36 @@ Write-Host "[2/6] 安装技能文件..." -ForegroundColor Yellow
 
 # session-context
 $skillsDir = "$targetDir\skills\session-context"
-New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
 $sourceSkills = "$scriptDir\.claude\skills\session-context\"
-if (Test-Path $sourceSkills) {
+if ($isSelfInstall) {
+    Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+}
+elseif (Test-Path $sourceSkills) {
+    New-Item -ItemType Directory -Force -Path $skillsDir | Out-Null
     Copy-Item -Path "$sourceSkills*" -Destination $skillsDir -Recurse -Force
     Write-Host "  ✅ session-context 技能已安装" -ForegroundColor Green
 }
 
 # task-orchestrator
 $orchDir = "$targetDir\skills\task-orchestrator"
-New-Item -ItemType Directory -Force -Path $orchDir | Out-Null
 $sourceOrch = "$scriptDir\.claude\skills\task-orchestrator\"
-if (Test-Path $sourceOrch) {
+if ($isSelfInstall) {
+    Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+}
+elseif (Test-Path $sourceOrch) {
+    New-Item -ItemType Directory -Force -Path $orchDir | Out-Null
     Copy-Item -Path "$sourceOrch*" -Destination $orchDir -Recurse -Force
     Write-Host "  ✅ task-orchestrator 技能已安装" -ForegroundColor Green
 }
 
 # project-workflow
 $wfDir = "$targetDir\skills\project-workflow"
-New-Item -ItemType Directory -Force -Path $wfDir | Out-Null
 $sourceWf = "$scriptDir\.claude\skills\project-workflow\"
-if (Test-Path $sourceWf) {
+if ($isSelfInstall) {
+    Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+}
+elseif (Test-Path $sourceWf) {
+    New-Item -ItemType Directory -Force -Path $wfDir | Out-Null
     Copy-Item -Path "$sourceWf*" -Destination $wfDir -Recurse -Force
     Write-Host "  ✅ project-workflow 技能已安装" -ForegroundColor Green
 }
@@ -193,9 +222,12 @@ if ($isGlobal) {
 }
 else {
     $hooksScriptDir = "$targetDir\hooks"
-    New-Item -ItemType Directory -Force -Path $hooksScriptDir | Out-Null
     $sourceHooks = "$scriptDir\.claude\hooks\"
-    if (Test-Path $sourceHooks) {
+    if ($isSelfInstall) {
+        Write-Host "  ⏭️  跳过（已在源目录中）" -ForegroundColor Gray
+    }
+    elseif (Test-Path $sourceHooks) {
+        New-Item -ItemType Directory -Force -Path $hooksScriptDir | Out-Null
         Copy-Item -Path "$sourceHooks*.sh" -Destination $hooksScriptDir -Force
         Write-Host "  ✅ hooks 脚本已安装" -ForegroundColor Green
     }

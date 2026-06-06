@@ -333,6 +333,131 @@ AI 在对话中持续自监控，发现异常时**主动汇报健康报告**，�
 - 当前任务：首页加载慢，需排查性能瓶颈
 ```
 
+### 规则 4.52：Bug 修复后自动添加单元测试
+
+当 AI 修复了一个 bug 后，**自动为该修复创建对应的单元测试**：
+
+**触发条件：**
+
+- AI 识别到用户在修复 bug（关键词：修复、fix、bug、debug、问题、报错）
+- AI 完成了 bug 修复的代码修改
+- 项目存在测试框架（检测到测试配置文件或测试目录）
+
+**自动执行流程：**
+
+```
+AI 修复 bug 完成
+  │
+  ├─ 检测项目测试框架
+  │     │
+  │     ├─ 有测试框架 → 继续
+  │     │     检测方式：
+  │     │     - package.json 中有 jest/vitest/mocha
+  │     │     - pyproject.toml 中有 pytest
+  │     │     - 存在 __tests__/ 或 tests/ 目录
+  │     │     - 存在 *.test.* 或 *.spec.* 文件
+  │     │
+  │     └─ 无测试框架 → 跳过，不创建测试
+  │           告知用户："项目未配置测试框架，跳过自动测试"
+  │
+  ├─ 分析 bug 修复内容
+  │     ├─ 修复了哪个文件/函数
+  │     ├─ bug 的根因是什么
+  │     └─ 修复方案是什么
+  │
+  ├─ 生成测试用例
+  │     ├─ 测试文件位置：与源文件同目录或 tests/ 目录
+  │     ├─ 测试命名：{源文件名}.test.{扩展名}
+  │     ├─ 测试内容：
+  │     │     ├─ 测试 bug 场景（修复前会失败的场景）
+  │     │     ├─ 测试正常场景（确保修复没有破坏现有功能）
+  │     │     └─ 测试边界条件（如有必要）
+  │     └─ 测试描述：明确说明这是针对 bug 修复的测试
+  │
+  ├─ 写入测试文件
+  │
+  ├─ 运行测试验证
+  │     ├─ 测试通过 → 告知用户："已创建单元测试并验证通过"
+  │     └─ 测试失败 → 分析失败原因，修复测试或报告问题
+  │
+  └─ 更新 current-task.md
+        在"已完成"部分追加：
+        - [x] 修复 {bug 描述}
+        - [x] 添加单元测试验证修复
+```
+
+**测试文件模板（JavaScript/TypeScript）：**
+
+```typescript
+/**
+ * Bug Fix Test: {bug 描述}
+ *
+ * 修复日期：{日期}
+ * 修复文件：{源文件路径}
+ * 问题根因：{bug 根因}
+ * 修复方案：{修复方案}
+ */
+
+import { describe, it, expect } from 'vitest' // 或 jest
+import { functionName } from './source-file'
+
+describe('Bug Fix: {bug 描述}', () => {
+  it('should handle {bug 场景描述}', () => {
+    // Arrange - 设置测试数据
+    const input = { /* 触发 bug 的输入 */ }
+
+    // Act - 执行被测试的函数
+    const result = functionName(input)
+
+    // Assert - 验证修复后的正确行为
+    expect(result).toBe({ expectedOutput })
+  })
+
+  it('should not break existing functionality', () => {
+    // 测试正常场景，确保修复没有破坏现有功能
+  })
+})
+```
+
+**测试文件模板（Python）：**
+
+```python
+"""
+Bug Fix Test: {bug 描述}
+
+修复日期：{日期}
+修复文件：{源文件路径}
+问题根因：{bug 根因}
+修复方案：{修复方案}
+"""
+
+import pytest
+from source_file import function_name
+
+def test_bug_fix_{场景描述}():
+    """测试 bug 场景（修复前会失败的场景）"""
+    # Arrange
+    input_data = { /* 触发 bug 的输入 */ }
+
+    # Act
+    result = function_name(input_data)
+
+    # Assert
+    assert result == expected_output
+
+def test_existing_functionality_not_broken():
+    """测试正常场景，确保修复没有破坏现有功能"""
+    pass
+```
+
+**关键原则：**
+
+1. **测试必须验证 bug 修复**——测试用例要能重现 bug 场景
+2. **测试要简洁明了**——每个测试只验证一个行为
+3. **测试描述要清晰**——说明这是针对哪个 bug 的修复
+4. **不要创建不必要的测试**——只在有测试框架时才创建
+5. **测试失败时要报告**——不要静默忽略测试失败
+
 ### 规则 4.55：关键文件清单（跨会话上下文接力）
 
 当上下文即将耗尽需要开新会话时，在 `current-task.md` 的 `## 🔜 下次继续` 段落后追加 `## 📂 关键文件清单`：

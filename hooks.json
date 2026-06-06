@@ -1,0 +1,17 @@
+﻿{
+    "description":  "SKIIS 上下文管理自动检查",
+    "hooks":  {
+                  "PostToolUse":  [
+                                      {
+                                          "command":  "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/on-file-change.sh",
+                                          "matcher":  "Write|Edit"
+                                      }
+                                  ],
+                  "PreToolUse":  [
+                                     {
+                                         "command":  "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/check-context.sh",
+                                         "matcher":  "Bash"
+                                     }
+                                 ]
+              }
+}
